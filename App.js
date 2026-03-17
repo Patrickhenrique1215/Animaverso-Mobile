@@ -1,20 +1,33 @@
+import 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+
+import HomeScreen from './src/screens/HomeScreen';
+
+import { useFonts, MouseMemoirs_400Regular } from '@expo-google-fonts/mouse-memoirs';
+
+const Stack = createStackNavigator();
 
 export default function App() {
+  
+  let [fontsLoaded] = useFonts({
+    'Mouse': MouseMemoirs_400Regular,
+  });
+
+  if (!fontsLoaded) return null; // Segura a renderização até carregar
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+    <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
       <StatusBar style="auto" />
-    </View>
+      
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Home" component={HomeScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+      
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
