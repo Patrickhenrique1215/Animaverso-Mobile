@@ -1,43 +1,117 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   TextInput,
   Image,
-  StyleSheet,
   ScrollView,
+  Pressable,
+  ImageBackground,
 } from 'react-native';
+import styles from './index.styles';
+import { LinearGradient } from 'expo-linear-gradient';
 
-export default function Header() {
+const API_KEY = "d8d845616ef648907b00e45d63d0584f";
+const BASE_URL = "https://api.themoviedb.org/3";
+
+export default function Header({ setBusca, setResultados }) {
 
     //States
     const [menuAberto, setMenuAberto] = useState(false);
+    //const [texto, setTexto] = useState("");  //para funcionar o campo de busca. ainda em produção
+
+    //Refs
+    //const dropdownRef = useRef(null);  //para fechar o modal quando clicado fora. ainda em produçao
 
     //Funções
     const toggleMenu = () => setMenuAberto(!menuAberto);
 
-    return (
-        <View style={styles.header}>
+    //Funçao buscar FAMILIA
+    async function familia() {
 
-        <TouchableOpacity>
+        const paginas = [1,2,3,4,5,6,7,8,9];
+
+        const requestsFilmes = paginas.map(page =>
+            fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16,10751&without_original_language=ja&language=pt-BR&page=${page}`)
+        );
+
+        const requestsSeries = paginas.map(page =>
+            fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16,10751&without_original_language=ja&language=pt-BR&page=${page}`)
+        );
+
+        const respostas = await Promise.all([...requestsFilmes, ...requestsSeries]);
+
+        const json = await Promise.all(respostas.map(r => r.json()));
+
+        // junta todos resultados
+        const todos = json.flatMap(d => d.results);
+
+        // remove duplicados
+        const unicos = Array.from(
+            new Map(
+                todos.map(item => [
+                `${item.id}-${item.title ? "movie" : "tv"}`,
+                item
+                ])
+            ).values()
+        );
+
+        const filtrados = unicos.filter(item =>
+            item.poster_path &&
+            item.vote_average >= 5 &&
+            item.vote_count >= 200
+        );
+
+        setBusca("familia");
+        setResultados(filtrados);
+    }
+    
+    const actions = {
+      'Família': familia,
+      
+    };
+
+    return (
+      <LinearGradient
+        colors={['black', 'rgba(0,0,0,0.8)', 'transparent']}
+        style={styles.header}
+        start={{x: 0, y: 0}} 
+        end={{x: 0, y: 1}}
+      >
+
+        <Pressable>
             <Image
             source={require('../../../assets/logosemfundo.png')} 
             style={styles.logo}
             resizeMode="contain"
             />
-        </TouchableOpacity>
+        </Pressable>
 
-        <View style={styles.dropdownContainer}>
-            <TouchableOpacity style={styles.dropdownButton} onPress={toggleMenu}>
-            <Text style={styles.dropdownText}>Categorias</Text>
-            <Text style={styles.chevron}>▼</Text>
-            </TouchableOpacity>
+        <Pressable style={styles.dropdownButton} onPress={toggleMenu}>
+          <Text style={styles.dropdownText}>Categorias</Text>
+          <Text style={styles.chevron}>▼</Text>
+        </Pressable>
 
-            {menuAberto && (
-            <View style={styles.dropdownContent}>
-                <ScrollView style={{ maxHeight: 320 }}>
-                
+        <TextInput
+            style={styles.inputPesquisar}
+            placeholder="Pesquisar"
+            placeholderTextColor="#918f8f"
+            // value={texto}
+            // onChangeText={setTexto}
+        />
+
+        {menuAberto && (
+          <ImageBackground 
+            style={styles.dropContent}
+            source={require('../../../assets/back.png')}
+            resizeMode='cover'
+          >
+          <LinearGradient
+            colors={['rgba(0,0,0,0.2)', 'rgba(0,0,0,0.7)']}
+            style={styles.overlay}
+          >
+
+              <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Gêneros</Text>
                     <View style={styles.grid}>
@@ -52,9 +126,17 @@ export default function Header() {
                         'Mistério',
                         'Horror',
                     ].map((item) => (
-                        <TouchableOpacity key={item} style={styles.item}>
-                        <Text style={styles.itemText}>{item}</Text>
-                        </TouchableOpacity>
+                        <Pressable 
+                          key={item} 
+                          style={styles.item} 
+                          onPress={() => {
+                            if (actions[item]) {
+                              actions[item]();
+                              setMenuAberto(false); // Fecha o menu após selecionar
+                            }
+                          }}>
+                          <Text style={styles.itemText}>{item}</Text>
+                        </Pressable>
                     ))}
                     </View>
                 </View>
@@ -63,120 +145,16 @@ export default function Header() {
                     <Text style={styles.sectionTitle}>Classificação indicativa</Text>
                     <View style={styles.grid}>
                     {['L - Livre', '10', '12', '14', '16', '18'].map((item) => (
-                        <TouchableOpacity key={item} style={styles.item}>
+                        <Pressable key={item} style={styles.item}>
                         <Text style={styles.itemText}>{item}</Text>
-                        </TouchableOpacity>
+                        </Pressable>
                     ))}
                     </View>
                 </View>
-                </ScrollView>
-            </View>
-            )}
-        </View>
-
-        <TextInput
-            style={styles.inputPesquisar}
-            placeholder="Pesquisar"
-            placeholderTextColor="#aaa"
-            // value={texto}
-            // onChangeText={setTexto}
-        />
-        </View>
+              </ScrollView>
+          </LinearGradient>    
+          </ImageBackground>
+        )}
+      </LinearGradient>
     );
 }
-const styles = StyleSheet.create({
-  header: {
-    backgroundColor: 'black',
-    paddingTop: 10,
-    paddingBottom: 10,
-    paddingHorizontal: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-
-  logo: {
-    width: 90,
-    height: 40,
-  },
-
-  dropdownContainer: {
-    position: 'relative',
-  },
-
-  dropdownButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(164,164,175,0.5)',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-
-  dropdownText: {
-    color: 'white',
-    fontSize: 14,
-  },
-
-  chevron: {
-    color: 'white',
-    marginLeft: 6,
-    fontSize: 14,
-  },
-
-  dropdownContent: {
-    position: 'absolute',
-    top: 40,
-    left: 0,
-    width: 260,
-    backgroundColor: 'rgba(0,0,0,0.95)',
-    borderWidth: 2,
-    borderColor: 'black',
-    borderRadius: 8,
-    padding: 10,
-    zIndex: 1000,
-    elevation: 5, // sombra no Android
-  },
-
-  section: {
-    marginBottom: 16,
-  },
-
-  sectionTitle: {
-    color: 'white',
-    fontSize: 16,
-    marginBottom: 8,
-    paddingLeft: 6,
-    borderLeftWidth: 2,
-    borderBottomWidth: 2,
-    borderColor: 'rgba(234,227,227,1)',
-  },
-
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8, // ⚠️ funciona só em versões mais novas
-  },
-
-  item: {
-    borderBottomWidth: 1,
-    borderColor: 'rgba(225,220,220,0.4)',
-    paddingVertical: 6,
-    paddingHorizontal: 8,
-  },
-
-  itemText: {
-    color: '#e8e9f0',
-    fontSize: 14,
-  },
-
-  inputPesquisar: {
-    backgroundColor: '#111',
-    color: 'white',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    height: 36,
-    width: 120,
-  },
-});
