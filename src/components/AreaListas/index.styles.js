@@ -3,13 +3,20 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
     caixota: {
         marginBottom: 30,
-        borderWidth: 1,
-        borderColor: '#595757',
-        gap: 10,
+        marginLeft: 10,
     },
 
     fundotitulo: {
         width: '100%',
+        flexDirection: 'row',
+        marginTop: 16,
+        marginBottom: 8,
+    },
+
+    barrinhaAmarela: {
+        width: 4,
+        height: '100%',
+        backgroundColor: 'yellow',
     },
 
     tituloSecao: {
