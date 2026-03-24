@@ -2,6 +2,8 @@ import styles from "./index.styles";
 import { View, Text, ScrollView } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import ListaLancamentos from "../ListaLancamentos";
+import ListaPopulares from "../ListaPopulares";
+import ListaDisney from "../ListaDisney";
 
 export default function AreaListas(){
     return(
@@ -30,6 +32,7 @@ export default function AreaListas(){
                     <View style={styles.barrinhaAmarela}></View>
                     <Text style={styles.tituloSecao}>Populares</Text>
                 </LinearGradient>
+                <ListaPopulares />
             </ScrollView>
             <ScrollView>
                 <LinearGradient
@@ -42,6 +45,7 @@ export default function AreaListas(){
                     <View style={styles.barrinhaAmarela}></View>
                     <Text style={styles.tituloSecao}>Disney</Text>
                 </LinearGradient>
+                <ListaDisney/>
             </ScrollView>
             <ScrollView>
                 <LinearGradient

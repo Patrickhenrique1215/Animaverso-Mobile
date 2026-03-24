@@ -9,7 +9,7 @@ import modalDetails from '../../styles/modalDetails';
 const API_KEY = "d8d845616ef648907b00e45d63d0584f"; 
 const BASE_URL = "https://api.themoviedb.org/3";
 
-export default function ListaLancamentos(){
+export default function ListaDisney(){
 
     //States
     const [animacoes, setAnimacoes] = useState([]);
@@ -83,33 +83,32 @@ export default function ListaLancamentos(){
         setModalAberto(false);
     }
 
-    //useEffect para buscar animçaoes LANÇAMENTOS
+    //useEffwect para buscar animaçoes DISNEY
     useEffect(() => {
         const fetchAnimacoes = async () => {
         try {
-            // Animações em cartaz (filmes) + airing today (séries)
+            // Filmes e séries de animação da Disney
             const [filmesRes, seriesRes] = await Promise.all([
             fetch(
-                `${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16&language=pt-BR`
+                `${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16&with_companies=2&sort_by=popularity.desc&language=pt-BR`
             ),
             fetch(
-                `${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16&language=pt-BR`
+                `${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16&with_companies=2&sort_by=popularity.desc&language=pt-BR`
             )
             ]);
 
             const filmes = await filmesRes.json();
             const series = await seriesRes.json();
 
-            // Junta filmes e séries ordenado por popularidade
-            const todasAnimacoes = [
+            // Junta e pega top 20 mais populares
+            const todasAnimacoesDisney = [
             ...filmes.results,
             ...series.results
-            ].sort((a, b) => b.popularity - a.popularity)
-            .slice(0, 30); // Top 10
+            ].slice(0, 30);
 
-            setAnimacoes(todasAnimacoes);
+            setAnimacoes(todasAnimacoesDisney);
         } catch (error) {
-            console.error("Erro ao buscar animações:", error);
+            console.error("Erro ao buscar animações da Disney:", error);
         } finally {
             setLoading(false);
         }
@@ -117,6 +116,7 @@ export default function ListaLancamentos(){
 
         fetchAnimacoes();
     }, []);
+
 
     // useEffect para carregar detalhes do card selecionado
     useEffect(() => {

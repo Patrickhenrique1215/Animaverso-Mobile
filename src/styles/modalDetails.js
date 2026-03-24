@@ -3,20 +3,19 @@ import { StyleSheet, Dimensions } from 'react-native';
 const { width, height } = Dimensions.get('window');
 
 const modalDetails = StyleSheet.create({
-  // Overlay do modal
+  
   modalOverlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 999,
   },
   
-  // Container do modal (para capturar cliques)
   modalContainer: {
     width: width * 0.9,
     maxHeight: height * 0.85,
@@ -28,9 +27,11 @@ const modalDetails = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 40,
     elevation: 10,
+    borderWidth: 1,
+    borderColor: 'white',
   },
   
-  // ScrollView do modal
+  
   modal: {
     backgroundColor: '#141414',
   },
@@ -55,35 +56,31 @@ const modalDetails = StyleSheet.create({
   
   closeBtn: {
     position: 'absolute',
-    top: 12,
-    right: 12,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    top: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 1)',
+    width: 40,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   
   closeBtnText: {
     color: '#FFFFFF',
     fontSize: 20,
-    fontWeight: 'bold',
   },
   
   titleEButtons: {
     position: 'absolute',
     left: 20, 
-    bottom: 20,
+    bottom: 2,
     right: 20,
   },
   
   tituloModal: {
+    fontFamily: 'Mouse',
     fontSize: 24,
-    fontWeight: 'bold',
     color: '#FFFFFF',
     marginBottom: 8,
     textShadowColor: 'rgba(0, 0, 0, 0.8)',
@@ -92,6 +89,7 @@ const modalDetails = StyleSheet.create({
   },
   
   notaModal: {
+    fontFamily: 'Mouse',
     fontSize: 16,
     color: '#FFD700', 
     marginBottom: 16,
@@ -101,6 +99,8 @@ const modalDetails = StyleSheet.create({
   botoesContainer: {
     flexDirection: 'row',
     gap: 12,
+    alignItems: 'center',
+    marginTop: 15,
   },
   
   buttonAssistir: {
@@ -108,41 +108,58 @@ const modalDetails = StyleSheet.create({
     paddingVertical: 10, 
     paddingHorizontal: 24, 
     borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 38,
+    minHeight: 38,
   },
   
   buttonAssistirText: {
     color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontFamily: 'Mouse',
+    fontSize: 18,
+    lineHeight: 18,
+    margin: 0,
+    includeFontPadding: false,
   },
   
   addMyLista: {
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    paddingVertical: 10,
+    paddingVertical: 0,
     paddingHorizontal: 24,
     borderRadius: 5,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 38,
+    minHeight: 38,
+   
   },
   
   addMyListaText: {
     color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 38,
+    fontFamily: 'Mouse',
+    lineHeight: 38,
+    margin: 0,
+    includeFontPadding: false,
   },
   
   sinopse: {
     padding: 20,
+    
   },
   
   titleSinopse: {
     fontSize: 18,
-    fontWeight: 'bold',
+   fontFamily: 'Mouse',
     color: '#FFFFFF',
     marginBottom: 10,
   },
   
   textoSinopse: {
+    fontFamily: 'Mouse',
     fontSize: 14,
     color: '#CCCCCC',
     lineHeight: 20,
@@ -154,15 +171,18 @@ const modalDetails = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 20,
     gap: 20,
+    
   },
   
   // Coluna de informações
   infoColuna: {
     flex: 1,
     gap: 8,
+    
   },
   
   infoText: {
+    fontFamily: 'Mouse',
     fontSize: 12,
     color: '#CCCCCC',
     lineHeight: 18,

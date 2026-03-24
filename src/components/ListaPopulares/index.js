@@ -9,7 +9,7 @@ import modalDetails from '../../styles/modalDetails';
 const API_KEY = "d8d845616ef648907b00e45d63d0584f"; 
 const BASE_URL = "https://api.themoviedb.org/3";
 
-export default function ListaLancamentos(){
+export default function ListaPopulares(){
 
     //States
     const [animacoes, setAnimacoes] = useState([]);
@@ -83,29 +83,28 @@ export default function ListaLancamentos(){
         setModalAberto(false);
     }
 
-    //useEffect para buscar animçaoes LANÇAMENTOS
+    //useEffect para buscar animçaoes POPULARES
     useEffect(() => {
         const fetchAnimacoes = async () => {
         try {
-            // Animações em cartaz (filmes) + airing today (séries)
+            // Animações MAIS POPULARES (qualquer época)
             const [filmesRes, seriesRes] = await Promise.all([
             fetch(
-                `${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16&language=pt-BR`
+                `${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16&sort_by=popularity.desc&language=pt-BR`
             ),
             fetch(
-                `${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16&language=pt-BR`
+                `${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16&sort_by=popularity.desc&language=pt-BR`
             )
             ]);
 
             const filmes = await filmesRes.json();
             const series = await seriesRes.json();
 
-            // Junta filmes e séries ordenado por popularidade
+            // Junta e pega top 10 mais populares
             const todasAnimacoes = [
             ...filmes.results,
             ...series.results
-            ].sort((a, b) => b.popularity - a.popularity)
-            .slice(0, 30); // Top 10
+            ].slice(0, 30);
 
             setAnimacoes(todasAnimacoes);
         } catch (error) {
