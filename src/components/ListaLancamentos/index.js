@@ -1,6 +1,6 @@
-import { Pressable, ScrollView, Image, View, Text, Modal } from 'react-native';
+import { Pressable, ScrollView, View, Text, Modal } from 'react-native';
 import { useState, useEffect, useRef } from "react";
-
+import { Image } from 'expo-image';  
 import { LinearGradient } from 'expo-linear-gradient';
 
 import listas from '../../styles/listas';

@@ -4,6 +4,17 @@ import { LinearGradient } from 'expo-linear-gradient';
 import ListaLancamentos from "../ListaLancamentos";
 import ListaPopulares from "../ListaPopulares";
 import ListaDisney from "../ListaDisney";
+import ListaPixar from "../ListaPixar";
+import ListaFamilia from "../ListaFamilia";
+import ListaAcao from "../ListaAcao";
+import ListaDC from "../ListaDC";
+import ListaMarvel from "../ListaMarvel";
+import ListaComedia from "../ListaComedia";
+import ListaAventura from "../ListaAventura";
+import ListaFantasia from "../ListaFantasia";
+import ListaFiccao from "../ListaFiccao";
+import ListaAdultos from "../ListaAdultos";
+import ListaUltimos from "../ListaUltimos";
 
 export default function AreaListas(){
     return(
@@ -58,6 +69,7 @@ export default function AreaListas(){
                     <View style={styles.barrinhaAmarela}></View>
                     <Text style={styles.tituloSecao}>Pixar</Text>
                 </LinearGradient>
+                <ListaPixar />
             </ScrollView>
             <ScrollView>
                 <LinearGradient
@@ -70,6 +82,7 @@ export default function AreaListas(){
                     <View style={styles.barrinhaAmarela}></View>
                     <Text style={styles.tituloSecao}>Família</Text>
                 </LinearGradient>
+                <ListaFamilia/>
             </ScrollView>
             <ScrollView>
                 <LinearGradient
@@ -82,6 +95,7 @@ export default function AreaListas(){
                     <View style={styles.barrinhaAmarela}></View>
                     <Text style={styles.tituloSecao}>Ação</Text>
                 </LinearGradient>
+                <ListaAcao/>
             </ScrollView>
             <ScrollView>
                 <LinearGradient
@@ -94,6 +108,7 @@ export default function AreaListas(){
                     <View style={styles.barrinhaAmarela}></View>
                     <Text style={styles.tituloSecao}>DC</Text>
                 </LinearGradient>
+                <ListaDC/>
             </ScrollView>
             <ScrollView>
                 <LinearGradient
@@ -106,6 +121,7 @@ export default function AreaListas(){
                     <View style={styles.barrinhaAmarela}></View>
                     <Text style={styles.tituloSecao}>Marvel</Text>
                 </LinearGradient>
+                <ListaMarvel/>
             </ScrollView>
             <ScrollView>
                 <LinearGradient
@@ -118,6 +134,7 @@ export default function AreaListas(){
                     <View style={styles.barrinhaAmarela}></View>
                     <Text style={styles.tituloSecao}>Comédia</Text>
                 </LinearGradient>
+                <ListaComedia/>
             </ScrollView>
 
             <ScrollView>
@@ -131,6 +148,7 @@ export default function AreaListas(){
                     <View style={styles.barrinhaAmarela}></View>
                     <Text style={styles.tituloSecao}>Aventura</Text>
                 </LinearGradient>
+                <ListaAventura/>
             </ScrollView><ScrollView>
                 <LinearGradient
                     colors={['black', 'black', 'transparent', 'transparent']}
@@ -142,6 +160,7 @@ export default function AreaListas(){
                     <View style={styles.barrinhaAmarela}></View>
                     <Text style={styles.tituloSecao}>Fantasia</Text>
                 </LinearGradient>
+                <ListaFantasia/>
             </ScrollView>
             <ScrollView>
                 <LinearGradient
@@ -154,6 +173,7 @@ export default function AreaListas(){
                     <View style={styles.barrinhaAmarela}></View>
                     <Text style={styles.tituloSecao}>Ficção científica</Text>
                 </LinearGradient>
+                <ListaFiccao/>
             </ScrollView>
             <ScrollView>
                 <LinearGradient
@@ -166,6 +186,7 @@ export default function AreaListas(){
                     <View style={styles.barrinhaAmarela}></View>
                     <Text style={styles.tituloSecao}>Adultos</Text>
                 </LinearGradient>
+                <ListaAdultos/>
             </ScrollView>
             <ScrollView>
                 <LinearGradient
@@ -178,6 +199,7 @@ export default function AreaListas(){
                     <View style={styles.barrinhaAmarela}></View>
                     <Text style={styles.tituloSecao}>Últimos adicionados</Text>
                 </LinearGradient>
+                <ListaUltimos/>
             </ScrollView>
         </ScrollView>
     )

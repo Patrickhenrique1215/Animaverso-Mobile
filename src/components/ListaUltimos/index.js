@@ -9,7 +9,7 @@ import modalDetails from '../../styles/modalDetails';
 const API_KEY = "d8d845616ef648907b00e45d63d0584f"; 
 const BASE_URL = "https://api.themoviedb.org/3";
 
-export default function ListaPopulares(){
+export default function ListaUltimos(){
 
     //States
     const [animacoes, setAnimacoes] = useState([]);
@@ -83,24 +83,29 @@ export default function ListaPopulares(){
         setModalAberto(false);
     }
 
-    //useEffect para buscar animçaoes POPULARES
+    //useEffect para buscar animações de ULTIMOS ADICIONADOS
     useEffect(() => {
         const fetchAnimacoes = async () => {
         try {
-            // Animações MAIS POPULARES (qualquer época)
+            // Filmes e séries animação ORDENADAS por data de lançamento (mais novas primeiro)
             const [filmesRes, seriesRes] = await Promise.all([
             fetch(
-                `${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16&sort_by=popularity.desc&language=pt-BR`
+                `${BASE_URL}/discover/movie?api_key=${API_KEY}` +
+                `&with_genres=16` +
+                `&sort_by=release_date.desc` +  // 🎯 MAIS NOVAS PRIMEIRO
+                `&language=pt-BR`
             ),
             fetch(
-                `${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16&sort_by=popularity.desc&language=pt-BR`
+                `${BASE_URL}/discover/tv?api_key=${API_KEY}` +
+                `&with_genres=16` +
+                `&sort_by=first_air_date.desc` +  // Séries usam first_air_date
+                `&language=pt-BR`
             )
             ]);
 
             const filmes = await filmesRes.json();
             const series = await seriesRes.json();
 
-            // Junta e pega top 10 mais populares
             const todasAnimacoes = [
             ...filmes.results,
             ...series.results
@@ -108,7 +113,7 @@ export default function ListaPopulares(){
 
             setAnimacoes(todasAnimacoes);
         } catch (error) {
-            console.error("Erro ao buscar animações:", error);
+            console.error("Erro ao buscar últimos adicionados:", error);
         } finally {
             setLoading(false);
         }

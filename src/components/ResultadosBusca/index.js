@@ -1,6 +1,11 @@
-import styles from './index.style';
-import {Pressable, ScrollView, Text, View, Image} from 'react-native';
+import {Pressable, ScrollView, Text, View} from 'react-native';
 import { useState, useEffect, useRef } from "react";
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
+
+import styles from './index.style';
+import listas from '../../styles/listas';
+import modalDetails from '../../styles/modalDetails';
 
 const API_KEY = "d8d845616ef648907b00e45d63d0584f"; 
 const BASE_URL = "https://api.themoviedb.org/3";
@@ -54,21 +59,21 @@ export default function ResultadosBusca({resultados}){
   };
 
   //Função para abrir modal
-  {/*const abrirModal = (item) => {
+  const abrirModal = (item) => {
     setItemSelecionado(item);
     setModalAberto(true);
-  };*/}
+  };
 
   //Funçao pra fechar modal
-  {/*const closeModal = (item) => {
+  const closeModal = (item) => {
     setItemSelecionado(null);
     setModalAberto(false);
-  }*/}
+  }
 
 
 
   // useEffect para carregar detalhes do card selecionado
-    {/*}  useEffect(() => {
+      useEffect(() => {
         if (itemSelecionado) {
           const fetchTudo = async () => {
             // Detalhes principais
@@ -97,35 +102,166 @@ export default function ResultadosBusca({resultados}){
           };
           fetchTudo();
         }
-      }, [itemSelecionado]);*/}
+      }, [itemSelecionado]);
 
     return(
-        <ScrollView>
-            <Text>RESULTADOS</Text>
+        <ScrollView style={styles.caixaSuperior}>
+            <Text style={styles.tituloSecao}>RESULTADOS</Text>
             {resultados.length === 0 ? ( <Text>Sem resultados</Text> ) : ( 
-                <ScrollView>
+                <ScrollView style={styles.scrollviewPrincipal}>
+                    <View style={styles.containerCards}>
                     {resultados.map((item, index) => (
-                        <View key={item.id || index}>
+                        <Pressable 
+                          key={item.id || index}
+                          style={styles.cardLinkRes}
+                          //onPress={() => toggleCard(item.id)}
+                        >
                             <Image 
                                 source={{ uri: `https://image.tmdb.org/t/p/w300${item.poster_path}` }}
                                 accessibilityLabel={item.title || item.name}
-                                style={{ width: 200, height: 300 }} 
+                                style={styles.imgCardRes}
+                                contentFit="cover"
+                                transition={400}
+                                placeholderContentFit="cover" 
                             />
-                            <View>
-                                <View>
-                                    <Text>{item.title || item.name}</Text>
-                                    <Text> ★ {item.vote_average?.toFixed(1)}</Text>
+
+                                <View style={listas.hoverContainer}>
+                                <LinearGradient
+                                    colors={['rgba(0,0,0,1)', 'rgba(0,0,0,0.8)', 'transparent']}
+                                    locations={[0, 0.5, 1]}
+                                    start={{x: 0.5, y: 1}}  // começa na parte inferior central
+                                    end={{x: 0.5, y: 0}}     // termina na parte superior central
+                                    style={listas.gradientOverlay}
+                                >
+                                <View style={listas.hoverCard}>
+                                    <View style={listas.topoHoverCard}>
+                                        <Text style={listas.tituloHover}>{item.title || item.name}</Text>
+                                        <Text style={listas.notaHover}> ★ {item.vote_average?.toFixed(1)}</Text>
+                                    </View>
+                                    <View style={listas.botoesHoverCard}>
+                                        <Pressable style={listas.button}>
+                                            <Image 
+                                                style={listas.buttonImage}
+                                                source={require('../../../assets/play-button.png')} 
+                                                accessibilityLabel='Botão de ASSISTIR'
+                                            />
+                                        </Pressable>
+                                        <Pressable style={listas.button}>
+                                            <Image 
+                                                style={listas.buttonImage}
+                                                source={require('../../../assets/adicionar.png')} 
+                                                accessibilityLabel='Botão de adicionar à lista para ASSISTIR DEPOIS'
+                                            />
+                                        </Pressable>
+                                        <Pressable 
+                                            style={listas.button} 
+                                            onPress={() => abrirModal(item)}
+                                        >
+                                            <Image 
+                                                style={listas.buttonImage}
+                                                source={require('../../../assets/angle-down-solid.png')} 
+                                                accessibilityLabel={`Botão de VER MAIS DETALHES sobre ${item.title || item.name}`}
+                                            />
+                                        </Pressable>
+                                    </View>
                                 </View>
-                                <View>
-                                    <Pressable><Image source={require('../../../assets/play-button.png')}></Image></Pressable>
-                                    <Pressable><Image source={require('../../../assets/adicionar.png')}></Image></Pressable>
-                                    <Pressable><Image source={require('../../../assets/angle-down-solid.png')}></Image></Pressable>
+                                </LinearGradient>
+                                </View>
+                            
+                        </Pressable>
+                    ))}    
+                    </View>
+                </ScrollView>
+            )}
+            {modalAberto && itemSelecionado && (
+                <Modal
+                    visible={true}
+                    transparent={true}
+                    animationType="fade" // ou "slide"
+                    statusBarTranslucent={true}
+                    onRequestClose={closeModal}
+                >
+                <Pressable 
+                    style={modalDetails.modalOverlay} 
+                    onPress={closeModal}
+                >
+                    <Pressable style={modalDetails.modalContainer}>
+                        <ScrollView 
+                            style={modalDetails.modal}
+                            showsVerticalScrollIndicator={true}
+                            contentContainerStyle={modalDetails.modalContent}
+                        >
+                            <View style={modalDetails.topo}>
+                                <Image 
+                                    style={modalDetails.imgBackdrop} 
+                                    source={{uri: `https://image.tmdb.org/t/p/w1280${detalhesModal?.backdrop_path}`}}
+                                />
+                                <Pressable style={modalDetails.closeBtn} onPress={closeModal}>
+                                    <Text style={modalDetails.closeBtnText}>x</Text>
+                                </Pressable>
+                                <View style={modalDetails.titleEButtons}>
+                                    <Text style={modalDetails.tituloModal}>{detalhesModal?.title || detalhesModal?.name}</Text>
+                                    <Text style={modalDetails.notaModal}>★ {detalhesModal?.vote_average?.toFixed(1)}</Text>
+                                    <View style={modalDetails.botoesContainer}>
+                                        <Pressable style={modalDetails.buttonAssistir}>
+                                            <Text style={modalDetails.buttonAssistirText}>Assistir</Text>
+                                        </Pressable>
+                                        <Pressable style={modalDetails.addMyLista}>
+                                            <Text style={modalDetails.addMyListaText}>+</Text>
+                                        </Pressable>
+                                    </View>
                                 </View>
                             </View>
-                        </View>
-                    ))}    
-                </ScrollView>
-            )}    
+                            
+                            <View style={modalDetails.sinopse}>
+                                <Text style={modalDetails.titleSinopse}>Sinopse:</Text>
+                                <Text style={modalDetails.textoSinopse}>{detalhesModal?.overview}</Text>    
+                            </View>
+                            
+                            <View style={modalDetails.infosMidia}>
+                                <View style={modalDetails.infoColuna}>
+                                    <Text style={modalDetails.infoText}>
+                                        {detalhesModal?.release_date?.split('-')[0] || detalhesModal?.first_air_date?.split('-')[0]} 
+                                        {' - '}
+                                        {itemSelecionado.title ? 'Filme' : 'Série'}
+                                    </Text>
+                                    <Text style={modalDetails.infoText}>{detalhesModal?.classificacao || 'Não classificado'}</Text>
+                                    <Text style={modalDetails.infoText}>IDIOMA ORIGINAL: {getNomeIdioma(detalhesModal?.original_language)}</Text>
+                                    <Text style={modalDetails.infoText}>STATUS: {getStatusTraduzido(detalhesModal?.status)}</Text>
+                                    <Text style={modalDetails.infoText}>DURAÇÃO: {formatarDuracao(detalhesModal)}</Text>
+                                </View>
+                                <View style={modalDetails.infoColuna}>
+                                    <Text style={modalDetails.infoText}>Gêneros: {detalhesModal?.genres?.map(g => g.name).join(', ')}</Text>
+                                    <Text style={modalDetails.infoText}>Elenco: {detalhesModal?.credits?.cast?.slice(0,5).map(a => a.name).join(', ')}</Text>
+                                    <Text style={modalDetails.infoText}>Diretor: {detalhesModal?.credits?.crew?.filter(p => p.job === "Director").map(d => d.name).join(', ')}</Text>
+                                    <Text style={modalDetails.infoText}>Produtoras: {detalhesModal?.production_companies?.map(p => p.name).join(', ')}</Text>
+                                </View>
+                            </View>
+                            
+                            {detalhesModal?.images?.backdrops?.length > 0 && (
+                                <View style={modalDetails.imagensMidia}>
+                                    <Text style={modalDetails.titleSinopse}>Imagens</Text>
+                                    <ScrollView 
+                                        horizontal 
+                                        showsHorizontalScrollIndicator={false}
+                                        style={modalDetails.imagensScroll}
+                                    >
+                                        {detalhesModal?.images?.backdrops?.slice(0,8).map(img => (
+                                            <Image
+                                                key={img.file_path}
+                                                style={modalDetails.imagemAdicional}
+                                                source={{uri: `https://image.tmdb.org/t/p/w780${img.file_path}`}}
+                                                accessibilityLabel="Cenas e pôsteres"
+                                            />
+                                        ))}
+                                    </ScrollView>
+                                </View>
+                            )}
+                        </ScrollView>
+                    </Pressable>
+                </Pressable>
+                </Modal>
+            )}
         </ScrollView>
     )
 }

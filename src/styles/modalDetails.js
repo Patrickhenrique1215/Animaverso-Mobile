@@ -29,6 +29,7 @@ const modalDetails = StyleSheet.create({
     elevation: 10,
     borderWidth: 1,
     borderColor: 'white',
+    paddingBottom: 20,
   },
   
   

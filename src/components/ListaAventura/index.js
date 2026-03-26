@@ -9,7 +9,7 @@ import modalDetails from '../../styles/modalDetails';
 const API_KEY = "d8d845616ef648907b00e45d63d0584f"; 
 const BASE_URL = "https://api.themoviedb.org/3";
 
-export default function ListaPopulares(){
+export default function ListaAventura(){
 
     //States
     const [animacoes, setAnimacoes] = useState([]);
@@ -83,32 +83,32 @@ export default function ListaPopulares(){
         setModalAberto(false);
     }
 
-    //useEffect para buscar animçaoes POPULARES
+    //useEffect para acrregar animaçoes de AVENTURA
     useEffect(() => {
         const fetchAnimacoes = async () => {
         try {
-            // Animações MAIS POPULARES (qualquer época)
+            // Filmes e séries de animação da Aventura
             const [filmesRes, seriesRes] = await Promise.all([
             fetch(
-                `${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16&sort_by=popularity.desc&language=pt-BR`
+                `${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16,12&sort_by=popularity.desc&language=pt-BR`
             ),
             fetch(
-                `${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16&sort_by=popularity.desc&language=pt-BR`
+                `${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16,12&sort_by=popularity.desc&language=pt-BR`
             )
             ]);
 
             const filmes = await filmesRes.json();
             const series = await seriesRes.json();
 
-            // Junta e pega top 10 mais populares
-            const todasAnimacoes = [
+            // Junta e pega top 20 mais populares
+            const todasAnimacoesAventura = [
             ...filmes.results,
             ...series.results
             ].slice(0, 30);
 
-            setAnimacoes(todasAnimacoes);
+            setAnimacoes(todasAnimacoesAventura);
         } catch (error) {
-            console.error("Erro ao buscar animações:", error);
+            console.error("Erro ao buscar animações da Aventura:", error);
         } finally {
             setLoading(false);
         }
