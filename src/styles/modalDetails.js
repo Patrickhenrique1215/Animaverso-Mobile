@@ -19,7 +19,7 @@ const modalDetails = StyleSheet.create({
   modalContainer: {
     width: width * 0.9,
     maxHeight: height * 0.85,
-    backgroundColor: '#141414',
+    backgroundColor: 'rgb(20, 20, 20)',
     borderRadius: 12,
     overflow: 'hidden',
     shadowColor: '#000',
@@ -34,7 +34,7 @@ const modalDetails = StyleSheet.create({
   
   
   modal: {
-    backgroundColor: '#141414',
+    backgroundColor: 'rgb(20 ,20 ,20)',
   },
   
   modalContent: {

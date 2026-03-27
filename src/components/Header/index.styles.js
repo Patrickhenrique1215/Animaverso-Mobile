@@ -5,13 +5,15 @@ const { width, height } = Dimensions.get('window');
 const styles = StyleSheet.create({
   header: {
     height: 90,
+    position: 'absolute', 
+    top: 0,
+    left: 0,
+    right: 0,
     paddingTop: 10,
-    paddingBottom: 10,
     paddingHorizontal: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    position: 'relative',
     zIndex: 1000,
   },
 
@@ -51,6 +53,9 @@ const styles = StyleSheet.create({
     fontSize: 17,
     color: '#434141',
     paddingLeft: 8,
+    paddingVertical: 0,
+    textAlignVertical: 'center', // 👈 MUITO IMPORTANTE (Android)
+    lineHeight: 36,
   },
 
   dropContent: {

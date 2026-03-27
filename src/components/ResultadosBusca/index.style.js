@@ -13,22 +13,26 @@ const styles = StyleSheet.create({
         fontFamily: 'Mouse',
         fontSize: 28,
         marginBottom: 8,
-        marginLeft: 9,
+        marginLeft: 25,
 
     },
 
     scrollviewPrincipal: {
        flex: 1,
+       
+       
     },
 
     containerCards: {
         flexDirection: "row",
         flexWrap: "wrap",
+        justifyContent: 'space-around'
+        
     },
 
     cardLinkRes: {
         position: 'relative',
-        width: (width / 2) - 16,
+        width: width * 0.38,
         aspectRatio: 2 / 3,
         marginHorizontal: 8,
         borderRadius: 8,
@@ -43,7 +47,7 @@ const styles = StyleSheet.create({
   
     imgCardRes: {
         width: '100%',
-        height: 280,
+        height: '100%',
         resizeMode: 'cover', 
     },
 

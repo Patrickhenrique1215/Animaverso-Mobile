@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, View, Text, Modal } from 'react-native';
+import { Pressable, ScrollView, View, Text, Modal, ActivityIndicator } from 'react-native';
 import { useState, useEffect, useRef } from "react";
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image } from 'expo-image';   
@@ -18,6 +18,7 @@ export default function ListaMarvel(){
     const [itemSelecionado, setItemSelecionado] = useState(null);
     const [detalhesModal, setDetalhesModal] = useState(null);
     const [cardsAbertos, setCardsAbertos] = useState({});
+    const [loadingDetalhes, setLoadingDetalhes] = useState(false);
 
     //Refs
     const containerRef = useRef(null);
@@ -121,7 +122,9 @@ export default function ListaMarvel(){
     useEffect(() => {
       if (itemSelecionado) {
         const fetchTudo = async () => {
-          // Detalhes principais
+           setLoadingDetalhes(true);
+
+            try {
           const detalhesUrl = itemSelecionado.title 
             ? `${BASE_URL}/movie/${itemSelecionado.id}`
             : `${BASE_URL}/tv/${itemSelecionado.id}`;
@@ -144,14 +147,34 @@ export default function ListaMarvel(){
           )?.rating || 'Classificação indicativa não informada';
           
           setDetalhesModal({ ...detalhes, classificacao: classificacaoBR });
-        };
+        } catch (error) {
+                console.log("Erro ao buscar dados:", error);
+            } finally {
+                setLoadingDetalhes(false);
+            }
+            };
         fetchTudo();
       }
     }, [itemSelecionado]);
 
     //Render condicional
     if (loading) {
-        return <Text>Carregando...</Text>;
+        return (
+            <View style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+            }}>
+                <ActivityIndicator size="large" color="#E50914" />
+                <Text style={{
+                    color: '#fff',
+                    marginTop: 12,
+                    fontSize: 16
+                }}>
+                    Buscando resultados...
+                </Text>
+            </View>
+        );
     }
 
     return(
@@ -247,6 +270,10 @@ export default function ListaMarvel(){
                             showsVerticalScrollIndicator={true}
                             contentContainerStyle={modalDetails.modalContent}
                         >
+
+                            {loadingDetalhes ? (
+                                <ActivityIndicator size="large" color="#fff" />
+                            ) : (
                             <View style={modalDetails.topo}>
                                 <Image 
                                     style={modalDetails.imgBackdrop} 
@@ -268,7 +295,7 @@ export default function ListaMarvel(){
                                     </View>
                                 </View>
                             </View>
-                            
+                            )}
                             <View style={modalDetails.sinopse}>
                                 <Text style={modalDetails.titleSinopse}>Sinopse:</Text>
                                 <Text style={modalDetails.textoSinopse}>{detalhesModal?.overview}</Text>    

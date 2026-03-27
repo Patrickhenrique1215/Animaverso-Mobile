@@ -1,4 +1,4 @@
-import {Pressable, ScrollView, Text, View} from 'react-native';
+import {Pressable, ScrollView, Text, View, Modal, ActivityIndicator, Animated} from 'react-native';
 import { useState, useEffect, useRef } from "react";
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -10,111 +10,171 @@ import modalDetails from '../../styles/modalDetails';
 const API_KEY = "d8d845616ef648907b00e45d63d0584f"; 
 const BASE_URL = "https://api.themoviedb.org/3";
 
-export default function ResultadosBusca({resultados}){
+export default function ResultadosBusca({resultados, loading}){
 
     //States
     const [modalAberto, setModalAberto] = useState(false);
     const [itemSelecionado, setItemSelecionado] = useState(null);
     const [detalhesModal, setDetalhesModal] = useState(null);
+    const [cardsAbertos, setCardsAbertos] = useState({});
+    const [loadingDetalhes, setLoadingDetalhes] = useState(false);
+
+    //Refs
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const translateY = useRef(new Animated.Value(15)).current;
+
+    //Efeito de fade in
+    useEffect(() => {
+        Animated.parallel([
+        Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 500,
+            useNativeDriver: true,
+        }),
+        Animated.timing(translateY, {
+            toValue: 0,
+            duration: 500,
+            useNativeDriver: true,
+        })
+        ]).start();
+    }, []);
+
+     // Função para toggle do card
+    const toggleCard = (id) => {
+        setCardsAbertos(prev => ({
+            ...prev,
+            [id]: !prev[id]
+        }));
+    };
 
     // Função para formatar duração
-  const formatarDuracao = (detalhes) => {
-    if (!detalhes) return 'Carregando...';
-    
-    if (detalhes.runtime) {
-      return `${detalhes.runtime} min`;
-    } else if (detalhes.episode_run_time?.[0]) {
-      return `${detalhes.episode_run_time[0]} min/ep`;
-    }
-    return 'N/D';
-  };
-
-  //Função pra formatar idiomas
-  const getNomeIdioma = (codigo) => {
-    if (!codigo) return 'N/D'; // ← Proteção contra undefined/null
-    
-    const idiomas = {
-      'en': 'Inglês',
-      'pt': 'Português', 
-      'es': 'Espanhol',
-      'fr': 'Francês',
-      'ja': 'Japonês',
-      'ko': 'Coreano'
-    };
-    return idiomas[codigo] || codigo.toUpperCase();
-  };
-
-
-  // Função pra traduzir status
-  const getStatusTraduzido = (status) => {
-    const traducoes = {
-      'Released': 'Lançado',
-      'Returning Series': 'Em exibição',
-      'Ended': 'Finalizada',
-      'In Production': 'Em produção',
-      'Canceled': 'Cancelada',
-      'Planned': 'Planejado'
-    };
-    return traducoes[status] || status;
-  };
-
-  //Função para abrir modal
-  const abrirModal = (item) => {
-    setItemSelecionado(item);
-    setModalAberto(true);
-  };
-
-  //Funçao pra fechar modal
-  const closeModal = (item) => {
-    setItemSelecionado(null);
-    setModalAberto(false);
-  }
-
-
-
-  // useEffect para carregar detalhes do card selecionado
-      useEffect(() => {
-        if (itemSelecionado) {
-          const fetchTudo = async () => {
-            // Detalhes principais
-            const detalhesUrl = itemSelecionado.title 
-              ? `${BASE_URL}/movie/${itemSelecionado.id}`
-              : `${BASE_URL}/tv/${itemSelecionado.id}`;
-            
-            const [detalhesRes, ratingRes] = await Promise.all([
-              fetch(`${detalhesUrl}?api_key=${API_KEY}&language=pt-BR&append_to_response=credits,images`),
-              fetch(`${detalhesUrl}/${
-                itemSelecionado.title ? 'release_dates' : 'content_ratings'
-              }?api_key=${API_KEY}`)
-            ]);
-            
-            const detalhes = await detalhesRes.json();
-            const ratingData = await ratingRes.json();
-            
-            // Pega classificação BR
-            const classificacaoBR = ratingData.results?.find(r => 
-              r.iso_3166_1 === 'BR'
-            )?.certification || ratingData.results?.find(r => 
-              r.iso_3166_1 === 'BR'
-            )?.rating || 'Classificação indicativa não informada';
-            
-            setDetalhesModal({ ...detalhes, classificacao: classificacaoBR });
-          };
-          fetchTudo();
+    const formatarDuracao = (detalhes) => {
+        if (!detalhes) return 'Carregando...';
+        
+        if (detalhes.runtime) {
+        return `${detalhes.runtime} min`;
+        } else if (detalhes.episode_run_time?.[0]) {
+        return `${detalhes.episode_run_time[0]} min/ep`;
         }
-      }, [itemSelecionado]);
+        return 'N/D';
+    };
+
+    //Função pra formatar idiomas
+    const getNomeIdioma = (codigo) => {
+        if (!codigo) return 'N/D'; // ← Proteção contra undefined/null
+        
+        const idiomas = {
+        'en': 'Inglês',
+        'pt': 'Português', 
+        'es': 'Espanhol',
+        'fr': 'Francês',
+        'ja': 'Japonês',
+        'ko': 'Coreano'
+        };
+        return idiomas[codigo] || codigo.toUpperCase();
+    };
+
+
+    // Função pra traduzir status
+    const getStatusTraduzido = (status) => {
+        const traducoes = {
+        'Released': 'Lançado',
+        'Returning Series': 'Em exibição',
+        'Ended': 'Finalizada',
+        'In Production': 'Em produção',
+        'Canceled': 'Cancelada',
+        'Planned': 'Planejado'
+        };
+        return traducoes[status] || status;
+    };
+
+    //Função para abrir modal
+    const abrirModal = (item) => {
+        setItemSelecionado(item);
+        setModalAberto(true);
+    };
+
+    //Funçao pra fechar modal
+    const closeModal = (item) => {
+        setItemSelecionado(null);
+        setModalAberto(false);
+    }
+
+
+
+    // useEffect para carregar detalhes do card selecionado
+    useEffect(() => {
+        if (itemSelecionado) {
+            const fetchTudo = async () => {
+            setLoadingDetalhes(true);
+
+            try {
+                const detalhesUrl = itemSelecionado.title 
+                ? `${BASE_URL}/movie/${itemSelecionado.id}`
+                : `${BASE_URL}/tv/${itemSelecionado.id}`;
+                
+                const [detalhesRes, ratingRes] = await Promise.all([
+                fetch(`${detalhesUrl}?api_key=${API_KEY}&language=pt-BR&append_to_response=credits,images`),
+                fetch(`${detalhesUrl}/${
+                    itemSelecionado.title ? 'release_dates' : 'content_ratings'
+                }?api_key=${API_KEY}`)
+                ]);
+                
+                const detalhes = await detalhesRes.json();
+                const ratingData = await ratingRes.json();
+
+                const classificacaoBR = ratingData.results?.find(r => 
+                r.iso_3166_1 === 'BR'
+                )?.certification || ratingData.results?.find(r => 
+                r.iso_3166_1 === 'BR'
+                )?.rating || 'Classificação indicativa não informada';
+                
+                setDetalhesModal({ ...detalhes, classificacao: classificacaoBR });
+
+            } catch (error) {
+                console.log("Erro ao buscar dados:", error);
+            } finally {
+                setLoadingDetalhes(false);
+            }
+            };
+
+            fetchTudo();
+        }
+    }, [itemSelecionado]);
+
+    //Render condicional
+    if (loading) {
+        return (
+            <View style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginVertical: 300,
+            }}>
+                <ActivityIndicator size="large" color="#E50914" />
+                <Text style={{
+                    color: '#fff',
+                    marginTop: 12,
+                    fontSize: 16
+                }}>
+                    Buscando resultados...
+                </Text>
+            </View>
+        );
+    }
 
     return(
         <ScrollView style={styles.caixaSuperior}>
             <Text style={styles.tituloSecao}>RESULTADOS</Text>
             {resultados.length === 0 ? ( <Text>Sem resultados</Text> ) : ( 
                 <ScrollView style={styles.scrollviewPrincipal}>
-                    <View style={styles.containerCards}>
+                    <Animated.View style={[styles.containerCards, { opacity: fadeAnim,
+                transform: [{ translateY }]}]}>
                     {resultados.map((item, index) => (
                         <Pressable 
                           key={item.id || index}
                           style={styles.cardLinkRes}
-                          //onPress={() => toggleCard(item.id)}
+                          onPress={() => toggleCard(item.id)}
                         >
                             <Image 
                                 source={{ uri: `https://image.tmdb.org/t/p/w300${item.poster_path}` }}
@@ -124,7 +184,7 @@ export default function ResultadosBusca({resultados}){
                                 transition={400}
                                 placeholderContentFit="cover" 
                             />
-
+                                {cardsAbertos[item.id] && (
                                 <View style={listas.hoverContainer}>
                                 <LinearGradient
                                     colors={['rgba(0,0,0,1)', 'rgba(0,0,0,0.8)', 'transparent']}
@@ -167,10 +227,10 @@ export default function ResultadosBusca({resultados}){
                                 </View>
                                 </LinearGradient>
                                 </View>
-                            
+                                )}
                         </Pressable>
                     ))}    
-                    </View>
+                    </Animated.View>
                 </ScrollView>
             )}
             {modalAberto && itemSelecionado && (
@@ -191,6 +251,11 @@ export default function ResultadosBusca({resultados}){
                             showsVerticalScrollIndicator={true}
                             contentContainerStyle={modalDetails.modalContent}
                         >
+                            {loadingDetalhes ? (
+                                <ActivityIndicator size="large" color="#fff" />
+                            ) : (
+                              
+                            
                             <View style={modalDetails.topo}>
                                 <Image 
                                     style={modalDetails.imgBackdrop} 
@@ -213,6 +278,8 @@ export default function ResultadosBusca({resultados}){
                                 </View>
                             </View>
                             
+                            )}
+
                             <View style={modalDetails.sinopse}>
                                 <Text style={modalDetails.titleSinopse}>Sinopse:</Text>
                                 <Text style={modalDetails.textoSinopse}>{detalhesModal?.overview}</Text>    

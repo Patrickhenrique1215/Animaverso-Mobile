@@ -1,4 +1,5 @@
-import { ScrollView, ImageBackground} from 'react-native';
+import { ScrollView, ImageBackground, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
 import Header from "../../components/Header";
 import AreaListas from '../../components/AreaListas';
@@ -9,28 +10,42 @@ export default function HomeScreen() {
 
   const [busca, setBusca] = useState("");
   const [resultados, setResultados] = useState([]);
-
+  const [loading, setLoading] = useState(false);
 
   return (
     <ImageBackground 
       source={require('../../../assets/back.png')}
-      style={{flex: 1}}
+      style={{ flex: 1 }}
       resizeMode='cover'
     >
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} >
+      <LinearGradient
+        colors={['rgba(0,0,0,0.5)', 'rgba(0,0,0,0.5)']}
+        style={{ flex: 1 }}
+      >
+
+      <View style={{ flex: 1 }}>
+
         <Header 
           setBusca={setBusca} 
           setResultados={setResultados}
+          setLoading={setLoading}
+          voltarInicio={() => {
+            setBusca("");
+            setResultados([]);
+          }}
         />
 
-        {busca ? (  
-          <ResultadosBusca resultados={resultados} />
-        ) : (
-          <AreaListas />
-        )}
-        <Footer />
-      </ScrollView>
+        <ScrollView contentContainerStyle={{ paddingTop: 90 }}>
+          {busca ? (  
+            <ResultadosBusca resultados={resultados} loading={loading} />
+          ) : (
+            <AreaListas />
+          )}
+          <Footer />
+        </ScrollView>
+
+      </View>
+      </LinearGradient>
     </ImageBackground>
   );
 }
-

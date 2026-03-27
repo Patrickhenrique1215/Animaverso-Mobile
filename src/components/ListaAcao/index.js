@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, View, Text, Modal } from 'react-native';
+import { Pressable, ScrollView, View, Text, Modal, ActivityIndicator, StyleSheet } from 'react-native';
 import { useState, useEffect, useRef } from "react";
 import { Image } from 'expo-image';  
 import { LinearGradient } from 'expo-linear-gradient';
@@ -18,6 +18,8 @@ export default function ListaAcao(){
     const [itemSelecionado, setItemSelecionado] = useState(null);
     const [detalhesModal, setDetalhesModal] = useState(null);
     const [cardsAbertos, setCardsAbertos] = useState({});
+    const [loadingDetalhes, setLoadingDetalhes] = useState(false);
+
 
     //Refs
     const containerRef = useRef(null);
@@ -120,7 +122,9 @@ export default function ListaAcao(){
     useEffect(() => {
       if (itemSelecionado) {
         const fetchTudo = async () => {
-          // Detalhes principais
+           setLoadingDetalhes(true);
+
+            try {
           const detalhesUrl = itemSelecionado.title 
             ? `${BASE_URL}/movie/${itemSelecionado.id}`
             : `${BASE_URL}/tv/${itemSelecionado.id}`;
@@ -143,14 +147,34 @@ export default function ListaAcao(){
           )?.rating || 'Classificação indicativa não informada';
           
           setDetalhesModal({ ...detalhes, classificacao: classificacaoBR });
-        };
+        } catch (error) {
+                console.log("Erro ao buscar dados:", error);
+            } finally {
+                setLoadingDetalhes(false);
+            }
+            };
         fetchTudo();
       }
     }, [itemSelecionado]);
 
     //Render condicional
     if (loading) {
-        return <Text>Carregando...</Text>;
+        return (
+            <View style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+            }}>
+                <ActivityIndicator size="large" color="#E50914" />
+                <Text style={{
+                    color: '#fff',
+                    marginTop: 12,
+                    fontSize: 16
+                }}>
+                    Buscando resultados...
+                </Text>
+            </View>
+        );
     }
 
     return(
@@ -236,17 +260,31 @@ export default function ListaAcao(){
                     style={modalDetails.modalOverlay} 
                     onPress={closeModal}
                 >
-                    <Pressable style={modalDetails.modalContainer}>
+                    <Pressable style={modalDetails.modalContainer} onPress={(e) => e.stopPropagation()}>
                         <ScrollView 
                             style={modalDetails.modal}
                             showsVerticalScrollIndicator={true}
                             contentContainerStyle={modalDetails.modalContent}
                         >
+
+                            {loadingDetalhes ? (
+                                <ActivityIndicator size="large" color="#fff" />
+                            ) : (
+                            
                             <View style={modalDetails.topo}>
+                                
                                 <Image 
                                     style={modalDetails.imgBackdrop} 
                                     source={{uri: `https://image.tmdb.org/t/p/w1280${detalhesModal?.backdrop_path}`}}
                                 />
+                                <LinearGradient
+                                    colors={['transparent', 'rgba(0,0,0,0.3)', 'rgb(20, 20, 20)']}
+                                    locations={[0, 0.4, 1]}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 0, y: 1 }}
+                                    style={StyleSheet.absoluteFill}
+                                />
+
                                 <Pressable style={modalDetails.closeBtn} onPress={closeModal}>
                                     <Text style={modalDetails.closeBtnText}>x</Text>
                                 </Pressable>
@@ -262,7 +300,10 @@ export default function ListaAcao(){
                                         </Pressable>
                                     </View>
                                 </View>
+                               
                             </View>
+                            
+                            )}
                             
                             <View style={modalDetails.sinopse}>
                                 <Text style={modalDetails.titleSinopse}>Sinopse:</Text>

@@ -1,5 +1,6 @@
 import styles from "./index.styles";
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, Animated } from "react-native";
+import { useRef, useEffect } from "react";
 import { LinearGradient } from 'expo-linear-gradient';
 import ListaLancamentos from "../ListaLancamentos";
 import ListaPopulares from "../ListaPopulares";
@@ -17,9 +18,36 @@ import ListaAdultos from "../ListaAdultos";
 import ListaUltimos from "../ListaUltimos";
 
 export default function AreaListas(){
+
+    //Refs
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const translateY = useRef(new Animated.Value(15)).current;
+
+    //Efeito de fade in
+    useEffect(() => {
+        Animated.parallel([
+        Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 500,
+            useNativeDriver: true,
+        }),
+        Animated.timing(translateY, {
+            toValue: 0,
+            duration: 500,
+            useNativeDriver: true,
+        })
+        ]).start();
+    }, []);
+
+
     return(
         <ScrollView style={styles.caixota}>
-            <ScrollView>
+            <Animated.View
+                style={{
+                opacity: fadeAnim,
+                transform: [{ translateY }]
+                }}
+            >
                 <LinearGradient
                     colors={['black', 'black', 'transparent', 'transparent']}
                     locations={[0, 0.4, 0.7, 1]}
@@ -30,9 +58,16 @@ export default function AreaListas(){
                     <View style={styles.barrinhaAmarela}></View>
                     <Text style={styles.tituloSecao}>Lançamentos</Text>
                 </LinearGradient>
+
                 <ListaLancamentos/>
-            </ScrollView>
-            <ScrollView>
+
+            </Animated.View>
+            <Animated.View
+                style={{
+                opacity: fadeAnim,
+                transform: [{ translateY }]
+                }}
+            >
                 <LinearGradient
                     colors={['black', 'black', 'transparent', 'transparent']}
                     locations={[0, 0.4, 0.7, 1]}
@@ -44,8 +79,13 @@ export default function AreaListas(){
                     <Text style={styles.tituloSecao}>Populares</Text>
                 </LinearGradient>
                 <ListaPopulares />
-            </ScrollView>
-            <ScrollView>
+            </Animated.View>
+            <Animated.View
+                style={{
+                opacity: fadeAnim,
+                transform: [{ translateY }]
+                }}
+            >
                 <LinearGradient
                     colors={['black', 'black', 'transparent', 'transparent']}
                     locations={[0, 0.4, 0.7, 1]}
@@ -57,8 +97,13 @@ export default function AreaListas(){
                     <Text style={styles.tituloSecao}>Disney</Text>
                 </LinearGradient>
                 <ListaDisney/>
-            </ScrollView>
-            <ScrollView>
+            </Animated.View>
+            <Animated.View
+                style={{
+                opacity: fadeAnim,
+                transform: [{ translateY }]
+                }}
+            >
                 <LinearGradient
                     colors={['black', 'black', 'transparent', 'transparent']}
                     locations={[0, 0.4, 0.7, 1]}
@@ -70,8 +115,13 @@ export default function AreaListas(){
                     <Text style={styles.tituloSecao}>Pixar</Text>
                 </LinearGradient>
                 <ListaPixar />
-            </ScrollView>
-            <ScrollView>
+            </Animated.View>
+            <Animated.View
+                style={{
+                opacity: fadeAnim,
+                transform: [{ translateY }]
+                }}
+            >
                 <LinearGradient
                     colors={['black', 'black', 'transparent', 'transparent']}
                     locations={[0, 0.4, 0.7, 1]}
@@ -83,8 +133,13 @@ export default function AreaListas(){
                     <Text style={styles.tituloSecao}>Família</Text>
                 </LinearGradient>
                 <ListaFamilia/>
-            </ScrollView>
-            <ScrollView>
+            </Animated.View>
+            <Animated.View
+                style={{
+                opacity: fadeAnim,
+                transform: [{ translateY }]
+                }}
+            >
                 <LinearGradient
                     colors={['black', 'black', 'transparent', 'transparent']}
                     locations={[0, 0.4, 0.7, 1]}
@@ -96,8 +151,13 @@ export default function AreaListas(){
                     <Text style={styles.tituloSecao}>Ação</Text>
                 </LinearGradient>
                 <ListaAcao/>
-            </ScrollView>
-            <ScrollView>
+            </Animated.View>
+            <Animated.View
+                style={{
+                opacity: fadeAnim,
+                transform: [{ translateY }]
+                }}
+            >
                 <LinearGradient
                     colors={['black', 'black', 'transparent', 'transparent']}
                     locations={[0, 0.4, 0.7, 1]}
@@ -109,8 +169,13 @@ export default function AreaListas(){
                     <Text style={styles.tituloSecao}>DC</Text>
                 </LinearGradient>
                 <ListaDC/>
-            </ScrollView>
-            <ScrollView>
+            </Animated.View>
+            <Animated.View
+                style={{
+                opacity: fadeAnim,
+                transform: [{ translateY }]
+                }}
+            >
                 <LinearGradient
                     colors={['black', 'black', 'transparent', 'transparent']}
                     locations={[0, 0.4, 0.7, 1]}
@@ -122,8 +187,13 @@ export default function AreaListas(){
                     <Text style={styles.tituloSecao}>Marvel</Text>
                 </LinearGradient>
                 <ListaMarvel/>
-            </ScrollView>
-            <ScrollView>
+            </Animated.View>
+            <Animated.View
+                style={{
+                opacity: fadeAnim,
+                transform: [{ translateY }]
+                }}
+            >
                 <LinearGradient
                     colors={['black', 'black', 'transparent', 'transparent']}
                     locations={[0, 0.4, 0.7, 1]}
@@ -135,9 +205,14 @@ export default function AreaListas(){
                     <Text style={styles.tituloSecao}>Comédia</Text>
                 </LinearGradient>
                 <ListaComedia/>
-            </ScrollView>
+            </Animated.View>
 
-            <ScrollView>
+            <Animated.View
+                style={{
+                opacity: fadeAnim,
+                transform: [{ translateY }]
+                }}
+            >
                 <LinearGradient
                     colors={['black', 'black', 'transparent', 'transparent']}
                     locations={[0, 0.4, 0.7, 1]}
@@ -149,7 +224,12 @@ export default function AreaListas(){
                     <Text style={styles.tituloSecao}>Aventura</Text>
                 </LinearGradient>
                 <ListaAventura/>
-            </ScrollView><ScrollView>
+            </Animated.View><Animated.View
+                style={{
+                opacity: fadeAnim,
+                transform: [{ translateY }]
+                }}
+            >
                 <LinearGradient
                     colors={['black', 'black', 'transparent', 'transparent']}
                     locations={[0, 0.4, 0.7, 1]}
@@ -161,8 +241,13 @@ export default function AreaListas(){
                     <Text style={styles.tituloSecao}>Fantasia</Text>
                 </LinearGradient>
                 <ListaFantasia/>
-            </ScrollView>
-            <ScrollView>
+            </Animated.View>
+            <Animated.View
+                style={{
+                opacity: fadeAnim,
+                transform: [{ translateY }]
+                }}
+            >
                 <LinearGradient
                     colors={['black', 'black', 'transparent', 'transparent']}
                     locations={[0, 0.4, 0.7, 1]}
@@ -174,8 +259,13 @@ export default function AreaListas(){
                     <Text style={styles.tituloSecao}>Ficção científica</Text>
                 </LinearGradient>
                 <ListaFiccao/>
-            </ScrollView>
-            <ScrollView>
+            </Animated.View>
+            <Animated.View
+                style={{
+                opacity: fadeAnim,
+                transform: [{ translateY }]
+                }}
+            >
                 <LinearGradient
                     colors={['black', 'black', 'transparent', 'transparent']}
                     locations={[0, 0.4, 0.7, 1]}
@@ -187,8 +277,13 @@ export default function AreaListas(){
                     <Text style={styles.tituloSecao}>Adultos</Text>
                 </LinearGradient>
                 <ListaAdultos/>
-            </ScrollView>
-            <ScrollView>
+            </Animated.View>
+            <Animated.View
+                style={{
+                opacity: fadeAnim,
+                transform: [{ translateY }]
+                }}
+            >
                 <LinearGradient
                     colors={['black', 'black', 'transparent', 'transparent']}
                     locations={[0, 0.4, 0.7, 1]}
@@ -200,7 +295,7 @@ export default function AreaListas(){
                     <Text style={styles.tituloSecao}>Últimos adicionados</Text>
                 </LinearGradient>
                 <ListaUltimos/>
-            </ScrollView>
+            </Animated.View>
         </ScrollView>
     )
 }

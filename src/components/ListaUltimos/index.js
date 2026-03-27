@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, View, Text, Modal } from 'react-native';
+import { Pressable, ScrollView, View, Text, Modal, ActivityIndicator } from 'react-native';
 import { useState, useEffect, useRef } from "react";
 import { Image } from 'expo-image';  
 import { LinearGradient } from 'expo-linear-gradient';
@@ -18,6 +18,8 @@ export default function ListaUltimos(){
     const [itemSelecionado, setItemSelecionado] = useState(null);
     const [detalhesModal, setDetalhesModal] = useState(null);
     const [cardsAbertos, setCardsAbertos] = useState({});
+    const [loadingDetalhes, setLoadingDetalhes] = useState(false);
+
 
     //Refs
     const containerRef = useRef(null);
@@ -126,7 +128,9 @@ export default function ListaUltimos(){
     useEffect(() => {
       if (itemSelecionado) {
         const fetchTudo = async () => {
-          // Detalhes principais
+           setLoadingDetalhes(true);
+
+            try {
           const detalhesUrl = itemSelecionado.title 
             ? `${BASE_URL}/movie/${itemSelecionado.id}`
             : `${BASE_URL}/tv/${itemSelecionado.id}`;
@@ -149,7 +153,12 @@ export default function ListaUltimos(){
           )?.rating || 'Classificação indicativa não informada';
           
           setDetalhesModal({ ...detalhes, classificacao: classificacaoBR });
-        };
+        } catch (error) {
+                console.log("Erro ao buscar dados:", error);
+            } finally {
+                setLoadingDetalhes(false);
+            }
+            };
         fetchTudo();
       }
     }, [itemSelecionado]);
@@ -248,6 +257,9 @@ export default function ListaUltimos(){
                             showsVerticalScrollIndicator={true}
                             contentContainerStyle={modalDetails.modalContent}
                         >
+                            {loadingDetalhes ? (
+                                <ActivityIndicator size="large" color="#fff" />
+                            ) : (
                             <View style={modalDetails.topo}>
                                 <Image 
                                     style={modalDetails.imgBackdrop} 
@@ -269,6 +281,8 @@ export default function ListaUltimos(){
                                     </View>
                                 </View>
                             </View>
+
+                            )}
                             
                             <View style={modalDetails.sinopse}>
                                 <Text style={modalDetails.titleSinopse}>Sinopse:</Text>
