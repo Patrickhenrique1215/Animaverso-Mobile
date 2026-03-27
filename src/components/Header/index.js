@@ -847,9 +847,10 @@ setResultados(filtrados);
       >
 
         <Pressable onPress={voltarInicio} style={({ hovered, pressed }) => ({
-        opacity: pressed ? 0.6 : hovered ? 0.8 : 1,
-        transform: [{ scale: pressed ? 0.95 : 1 }]
-      })}>
+            alignSelf: 'flex-start',
+            opacity: pressed ? 0.6 : hovered ? 0.8 : 1,
+            transform: [{ scale: pressed ? 0.95 : 1 }]
+        })}>
             <Image
             source={require('../../../assets/logosemfundo.png')} 
             style={styles.logo}

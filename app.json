@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "animaverso",
-    "slug": "animaverso",
+    "name": "Animaverso",
+    "slug": "Animaverso",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -20,7 +20,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.patrickhenrique.animaverso"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -35,6 +36,11 @@
     "androidNavigationBar": {
       "backgroundColor": "#000000",
       "barStyle": "light-content"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d90ef349-79db-491a-903e-acd988a39416"
+      }
     }
   }
 }
