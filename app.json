@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Animaverso",
-    "slug": "Animaverso",
+    "slug": "animaverso",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -41,6 +41,12 @@
       "eas": {
         "projectId": "d90ef349-79db-491a-903e-acd988a39416"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/d90ef349-79db-491a-903e-acd988a39416"
     }
   }
 }
