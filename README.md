@@ -13,10 +13,10 @@ https://expo.dev/accounts/patrickhenrique/projects/animaverso/builds/56379526-f9
 ## 🎯 **Objetivo do Projeto**
 
 Demonstrar proficiência em:
-**React Native** - Desenvolvimento mobile multiplataforma
-**Expo** - Build e publicação simplificada
-**Componentização** - Código reutilizável e organizado
-**Consumo de API** - Integração com dados dinâmicos
+1. **React Native** - Desenvolvimento mobile multiplataforma
+2. **Expo** - Build e publicação simplificada
+3. **Componentização** - Código reutilizável e organizado
+4. **Consumo de API** - Integração com dados dinâmicos
 
 ## 📈 **Próximos Passos (Melhorias Futuras)**
 
