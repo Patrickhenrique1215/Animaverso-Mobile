@@ -7,6 +7,9 @@ App mobile de streaming de animações desenvolvida como Single Page Application
 
 Escaneie o QR Code com o app **Expo Go** (disponível na Play Store e App Store):
 
+<img src="assets/qrcode.png" width="200" alt="QR Code Animaverso">
+
+
 ![QR Code](assets/qrcode.png)
 
 https://expo.dev/accounts/patrickhenrique/projects/animaverso/updates/6bd327a8-d439-41fc-9354-828e24e3d388
