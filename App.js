@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useEffect } from 'react';
+import { StyleSheet } from 'react-native';
 
 import HomeScreen from './src/screens/HomeScreen';
 import { useFonts, MouseMemoirs_400Regular } from '@expo-google-fonts/mouse-memoirs';
@@ -25,7 +26,7 @@ export default function App() {
   if (!fontsLoaded) return null; 
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['top','bottom','left','right']}>
+    <SafeAreaView style={styles.container} edges={['top','bottom','left','right']}>
       <StatusBar style="light" backgroundColor="black" />
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ 
@@ -39,3 +40,7 @@ export default function App() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1 }
+});

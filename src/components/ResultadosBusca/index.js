@@ -1,5 +1,5 @@
-import {Pressable, ScrollView, Text, View, Modal, ActivityIndicator, Animated} from 'react-native';
-import { useState, useEffect, useRef } from "react";
+import {Pressable, ScrollView, Text, View, Modal, ActivityIndicator, Animated, FlatList} from 'react-native';
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -9,6 +9,73 @@ import modalDetails from '../../styles/modalDetails';
 
 const API_KEY = "d8d845616ef648907b00e45d63d0584f"; 
 const BASE_URL = "https://api.themoviedb.org/3";
+
+const getItemKey = (item) => 
+  `${item.id}-${item.media_type ?? (item.title ? "movie" : "tv")}`;
+
+const renderCard = ({ item }, cardsAbertos, toggleCard, abrirModal) => {
+    
+    const itemKey = getItemKey(item); 
+
+    return (
+    <Pressable
+        style={styles.cardLinkRes}
+        onPress={() => toggleCard(itemKey)}
+    >
+        <Image
+        source={{ uri: `https://image.tmdb.org/t/p/w300${item.poster_path}` }}
+        accessibilityLabel={item.title || item.name}
+        style={styles.imgCardRes}
+        contentFit="cover"
+        transition={400}
+        />
+    {cardsAbertos[itemKey] && (
+                                    <View style={listas.hoverContainer}>
+                                    <LinearGradient
+                                        colors={['rgba(0,0,0,1)', 'rgba(0,0,0,0.8)', 'transparent']}
+                                        locations={[0, 0.5, 1]}
+                                        start={{x: 0.5, y: 1}}  // começa na parte inferior central
+                                        end={{x: 0.5, y: 0}}     // termina na parte superior central
+                                        style={listas.gradientOverlay}
+                                    >
+                                    <View style={listas.hoverCard}>
+                                        <View style={listas.topoHoverCard}>
+                                            <Text style={listas.tituloHover}>{item.title || item.name}</Text>
+                                            <Text style={listas.notaHover}> ★ {item.vote_average?.toFixed(1)}</Text>
+                                        </View>
+                                        <View style={listas.botoesHoverCard}>
+                                            <Pressable style={listas.button}>
+                                                <Image 
+                                                    style={listas.buttonImage}
+                                                    source={require('../../../assets/play-button.png')} 
+                                                    accessibilityLabel='Botão de ASSISTIR'
+                                                />
+                                            </Pressable>
+                                            <Pressable style={listas.button}>
+                                                <Image 
+                                                    style={listas.buttonImage}
+                                                    source={require('../../../assets/adicionar.png')} 
+                                                    accessibilityLabel='Botão de adicionar à lista para ASSISTIR DEPOIS'
+                                                />
+                                            </Pressable>
+                                            <Pressable 
+                                                style={listas.button} 
+                                                onPress={() => abrirModal(item)}
+                                            >
+                                                <Image 
+                                                    style={listas.buttonImage}
+                                                    source={require('../../../assets/angle-down-solid.png')} 
+                                                    accessibilityLabel={`Botão de VER MAIS DETALHES sobre ${item.title || item.name}`}
+                                                />
+                                            </Pressable>
+                                        </View>
+                                    </View>
+                                    </LinearGradient>
+                                    </View>
+                                    )}
+    </Pressable>
+    );
+};
 
 export default function ResultadosBusca({resultados, loading}){
 
@@ -40,24 +107,20 @@ export default function ResultadosBusca({resultados, loading}){
     }, []);
 
      // Função para toggle do card
-    const toggleCard = (id) => {
+    const toggleCard = useCallback((id) => {
         setCardsAbertos(prev => ({
             ...prev,
             [id]: !prev[id]
         }));
-    };
+    }, []);
 
     // Função para formatar duração
-    const formatarDuracao = (detalhes) => {
+    const formatarDuracao = useCallback((detalhes) => {
         if (!detalhes) return 'Carregando...';
-        
-        if (detalhes.runtime) {
-        return `${detalhes.runtime} min`;
-        } else if (detalhes.episode_run_time?.[0]) {
-        return `${detalhes.episode_run_time[0]} min/ep`;
-        }
+        if (detalhes.runtime) return `${detalhes.runtime} min`;
+        if (detalhes.episode_run_time?.[0]) return `${detalhes.episode_run_time[0]} min/ep`;
         return 'N/D';
-    };
+    }, []);
 
     //Função pra formatar idiomas
     const getNomeIdioma = (codigo) => {
@@ -88,18 +151,23 @@ export default function ResultadosBusca({resultados, loading}){
         return traducoes[status] || status;
     };
 
-    //Função para abrir modal
-    const abrirModal = (item) => {
+    //Abrir modal
+    const abrirModal = useCallback((item) => {
         setItemSelecionado(item);
         setModalAberto(true);
-    };
+    }, []);
 
-    //Funçao pra fechar modal
-    const closeModal = (item) => {
+    //Fechar modal
+    const closeModal = useCallback(() => {
         setItemSelecionado(null);
         setModalAberto(false);
-    }
+    }, []);
 
+    //Função render
+    const renderItem = useCallback(({ item }) => 
+    renderCard({ item }, cardsAbertos, toggleCard, abrirModal),
+    [cardsAbertos, toggleCard, abrirModal]
+    );
 
 
     // useEffect para carregar detalhes do card selecionado
@@ -163,76 +231,27 @@ export default function ResultadosBusca({resultados, loading}){
         );
     }
 
-    return(
-        <ScrollView style={styles.caixaSuperior}>
-            <Text style={styles.tituloSecao}>RESULTADOS</Text>
-            {resultados.length === 0 ? ( <Text>Sem resultados</Text> ) : ( 
-                <ScrollView style={styles.scrollviewPrincipal}>
-                    <Animated.View style={[styles.containerCards, { opacity: fadeAnim,
-                transform: [{ translateY }]}]}>
-                    {resultados.map((item, index) => (
-                        <Pressable 
-                          key={item.id || index}
-                          style={styles.cardLinkRes}
-                          onPress={() => toggleCard(item.id)}
-                        >
-                            <Image 
-                                source={{ uri: `https://image.tmdb.org/t/p/w300${item.poster_path}` }}
-                                accessibilityLabel={item.title || item.name}
-                                style={styles.imgCardRes}
-                                contentFit="cover"
-                                transition={400}
-                                placeholderContentFit="cover" 
-                            />
-                                {cardsAbertos[item.id] && (
-                                <View style={listas.hoverContainer}>
-                                <LinearGradient
-                                    colors={['rgba(0,0,0,1)', 'rgba(0,0,0,0.8)', 'transparent']}
-                                    locations={[0, 0.5, 1]}
-                                    start={{x: 0.5, y: 1}}  // começa na parte inferior central
-                                    end={{x: 0.5, y: 0}}     // termina na parte superior central
-                                    style={listas.gradientOverlay}
-                                >
-                                <View style={listas.hoverCard}>
-                                    <View style={listas.topoHoverCard}>
-                                        <Text style={listas.tituloHover}>{item.title || item.name}</Text>
-                                        <Text style={listas.notaHover}> ★ {item.vote_average?.toFixed(1)}</Text>
-                                    </View>
-                                    <View style={listas.botoesHoverCard}>
-                                        <Pressable style={listas.button}>
-                                            <Image 
-                                                style={listas.buttonImage}
-                                                source={require('../../../assets/play-button.png')} 
-                                                accessibilityLabel='Botão de ASSISTIR'
-                                            />
-                                        </Pressable>
-                                        <Pressable style={listas.button}>
-                                            <Image 
-                                                style={listas.buttonImage}
-                                                source={require('../../../assets/adicionar.png')} 
-                                                accessibilityLabel='Botão de adicionar à lista para ASSISTIR DEPOIS'
-                                            />
-                                        </Pressable>
-                                        <Pressable 
-                                            style={listas.button} 
-                                            onPress={() => abrirModal(item)}
-                                        >
-                                            <Image 
-                                                style={listas.buttonImage}
-                                                source={require('../../../assets/angle-down-solid.png')} 
-                                                accessibilityLabel={`Botão de VER MAIS DETALHES sobre ${item.title || item.name}`}
-                                            />
-                                        </Pressable>
-                                    </View>
-                                </View>
-                                </LinearGradient>
-                                </View>
-                                )}
-                        </Pressable>
-                    ))}    
-                    </Animated.View>
-                </ScrollView>
-            )}
+    return( 
+        <>        
+            <FlatList
+                data={resultados}
+                keyExtractor={(item) => getItemKey(item)}
+                renderItem={renderItem}
+                numColumns={2}       
+                ListHeaderComponent={
+                    <View style={{ width: '100%' }}>
+                        <Text style={styles.tituloSecao}>RESULTADOS</Text>
+                    </View>
+                }
+                ListEmptyComponent={
+                    <View style={{ width: '100%' }}>
+                        <Text style={styles.tituloSecao}>Sem resultados</Text>
+                    </View>
+                }
+                style={styles.flat}
+              
+            />
+      
             {modalAberto && itemSelecionado && (
                 <Modal
                     visible={true}
@@ -329,6 +348,6 @@ export default function ResultadosBusca({resultados, loading}){
                 </Pressable>
                 </Modal>
             )}
-        </ScrollView>
-    )
+        </>    
+    )   
 }

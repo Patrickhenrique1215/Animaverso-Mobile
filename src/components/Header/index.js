@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 const API_KEY = "d8d845616ef648907b00e45d63d0584f";
 const BASE_URL = "https://api.themoviedb.org/3";
 
+const CACHE_VERSION = 2; // incrementa quando mudar a lógica
+const cache = new Map();
+
 export default function Header({ setBusca, setResultados, setLoading, voltarInicio }) {
 
     //States
@@ -28,734 +31,113 @@ export default function Header({ setBusca, setResultados, setLoading, voltarInic
     //Funções
     const toggleMenu = () => setMenuAberto(!menuAberto);
 
-    //Funçao buscar FAMILIA
-    async function familia() {
+
+{/*
+    // Função genérica para buscar por gênero ou classificação
+    async function buscarConteudo({ nomeBusca, filmesConfig, seriesConfig }) {
       setLoading(true);
 
       try {
-          const paginas = [1,2,3,4,5,6,7,8,9];
+        const paginas = [1,2,3,4];
 
-          const requestsFilmes = paginas.map(page =>
-              fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16,10751&without_original_language=ja&language=pt-BR&page=${page}`)
-          );
+        // monta URLs de filmes
+        const requestsFilmes = paginas.map(page =>
+          fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&language=pt-BR&page=${page}&without_original_language=ja${filmesConfig}`)
+        );
 
-          const requestsSeries = paginas.map(page =>
-              fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16,10751&without_original_language=ja&language=pt-BR&page=${page}`)
-          );
+        // monta URLs de séries
+        const requestsSeries = paginas.map(page =>
+          fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&language=pt-BR&page=${page}&without_original_language=ja${seriesConfig}`)
+        );
 
-          const respostas = await Promise.all([...requestsFilmes, ...requestsSeries]);
-          const json = await Promise.all(respostas.map(r => r.json()));
+        const respostas = await Promise.all([...requestsFilmes, ...requestsSeries]);
+        const json = await Promise.all(respostas.map(r => r.json()));
 
-          const todos = json.flatMap(d => d.results);
+        const todos = json.flatMap(d => d.results);
 
-          const unicos = Array.from(
-              new Map(
-                  todos.map(item => [
-                      `${item.id}-${item.title ? "movie" : "tv"}`,
-                      item
-                  ])
-              ).values()
-          );
-
-          const filtrados = unicos.filter(item =>
-              item.id &&
-              item.poster_path &&
-              item.vote_average >= 5 &&
-              item.vote_count >= 200
-          );
-
-          setResultados(filtrados);
-          setBusca("familia");
-
-      } catch (e) {
-          console.log(e);
-      } finally {
-          setLoading(false);
-      }
-  }
-
-  //Funçao buscar COMEDIA
-    async function comedia() {
-
-      setLoading(true);
-
-      try {
-
-      const paginas = [1,2,3,4,5,6,7,8,9];
-
-      const requestsFilmes = paginas.map(page =>
-          fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16,35&without_original_language=ja&language=pt-BR&page=${page}`)
-      );
-
-      const requestsSeries = paginas.map(page =>
-          fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16,35&without_original_language=ja&language=pt-BR&page=${page}`)
-      );
-
-      const respostas = await Promise.all([...requestsFilmes, ...requestsSeries]);
-
-      const json = await Promise.all(respostas.map(r => r.json()));
-
-      // junta todos resultados
-      const todos = json.flatMap(d => d.results);
-
-      // remove duplicados
-      const unicos = Array.from(
+        const unicos = Array.from(
           new Map(
-              todos.map(item => [
+            todos.map(item => [
               `${item.id}-${item.title ? "movie" : "tv"}`,
               item
-              ])
+            ])
           ).values()
-      );
+        );
 
-      const filtrados = unicos.filter(item =>
+        const filtrados = unicos.filter(item =>
           item.id &&
           item.poster_path &&
           item.vote_average >= 5 &&
           item.vote_count >= 200
-      );
+        );
 
-      setResultados(filtrados);
-      setBusca("comedia");
+        setResultados(filtrados);
+        setBusca(nomeBusca);
 
       } catch (e) {
-          console.log(e);
+        console.log(e);
       } finally {
-          setLoading(false);
-      }
-
-    }
-
-     //Funçao buscar AVENTURA
-    async function aventura() {
-        setLoading(true);
-
-      try {
-
-        const paginas = [1,2,3,4,5,6,7,8,9];
-
-        const requestsFilmes = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16,12&without_original_language=ja&language=pt-BR&page=${page}`)
-        );
-
-        const requestsSeries = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16,12&without_original_language=ja&language=pt-BR&page=${page}`)
-        );
-
-        const respostas = await Promise.all([...requestsFilmes, ...requestsSeries]);
-
-        const json = await Promise.all(respostas.map(r => r.json()));
-
-        // junta todos resultados
-        const todos = json.flatMap(d => d.results);
-
-        // remove duplicados
-        const unicos = Array.from(
-            new Map(
-                todos.map(item => [
-                `${item.id}-${item.title ? "movie" : "tv"}`,
-                item
-                ])
-            ).values()
-        );
-
-        const filtrados = unicos.filter(item =>
-            item.poster_path &&
-            item.vote_average >= 5 &&
-            item.vote_count >= 200
-        );
-        setResultados(filtrados);
-        setBusca("aventura");
-
-         } catch (e) {
-          console.log(e);
-      } finally {
-          setLoading(false);
-      }
-        
-    }
-
-    //Funçao buscar DRAMA
-    async function drama() {
-        setLoading(true);
-
-      try {
-
-        const paginas = [1,2,3,4,5,6,7,8,9];
-
-        const requestsFilmes = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16,18&without_original_language=ja&language=pt-BR&page=${page}`)
-        );
-
-        const requestsSeries = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16,18&without_original_language=ja&language=pt-BR&page=${page}`)
-        );
-
-        const respostas = await Promise.all([...requestsFilmes, ...requestsSeries]);
-
-        const json = await Promise.all(respostas.map(r => r.json()));
-
-        // junta todos resultados
-        const todos = json.flatMap(d => d.results);
-
-        // remove duplicados
-        const unicos = Array.from(
-            new Map(
-                todos.map(item => [
-                `${item.id}-${item.title ? "movie" : "tv"}`,
-                item
-                ])
-            ).values()
-        );
-
-        const filtrados = unicos.filter(item =>
-            item.poster_path &&
-            item.vote_average >= 5 &&
-            item.vote_count >= 200
-        );
-
-        setResultados(filtrados);
-        setBusca("drama");
-         } catch (e) {
-          console.log(e);
-      } finally {
-          setLoading(false);
+        setLoading(false);
       }
     }
 
-    //Funçao buscar AÇÃO
-    async function acao() {
-        e.preventDefault();setLoading(true);
+*/}
+
+const buscarConteudo = useCallback(async ({ nomeBusca, filmesConfig, seriesConfig }) => {
+  const cacheKey = `v${CACHE_VERSION}-${nomeBusca}`;
+  
+  if (cache.has(cacheKey)) {
+    setResultados(cache.get(cacheKey));
+    setBusca(nomeBusca);
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const paginas = [1, 2, 3, 4];
+    const requestsFilmes = paginas.map(p =>
+      fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&language=pt-BR&page=${p}&without_original_language=ja${filmesConfig}`)
+    );
+    const requestsSeries = paginas.map(p =>
+      fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&language=pt-BR&page=${p}&without_original_language=ja${seriesConfig}`)
+    );
+
+    const respostas = await Promise.all([...requestsFilmes, ...requestsSeries]);
+    const json = await Promise.all(respostas.map(r => r.json()));
+    const todos = json.flatMap(d => d.results);
+
+    // ✅ 1. filtra primeiro (remove itens sem id/poster)
+    const filtrados = todos.filter(item =>
+      item.id &&
+      item.poster_path &&
+      item.vote_average >= 5 &&
+      item.vote_count >= 200
+    );
+
+    // ✅ 2. deduplica em cima dos já filtrados
+    const unicos = Array.from(
+      new Map(filtrados.map(item => [
+        `${item.id}-${item.media_type ?? (item.title ? "movie" : "tv")}`,
+        item
+      ])).values()
+    );
+
+    // ✅ 3. salva e seta os unicos (não os filtrados!)
+    cache.set(cacheKey, unicos);
+    setResultados(unicos);
+  
+    setBusca(nomeBusca);
+  } catch (e) {
+    console.log(e);
+  } finally {
+    setLoading(false);
+  }
+}, [setBusca, setResultados, setLoading]);
 
-      try {
-
-        const paginas = [1,2,3,4,5,6,7,8,9];
-
-        const requestsFilmes = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16,28&without_original_language=ja&language=pt-BR&page=${page}`)
-        );
-
-        const requestsSeries = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16,28&without_original_language=ja&language=pt-BR&page=${page}`)
-        );
-
-        const respostas = await Promise.all([...requestsFilmes, ...requestsSeries]);
-
-        const json = await Promise.all(respostas.map(r => r.json()));
-
-        // junta todos resultados
-        const todos = json.flatMap(d => d.results);
-
-        // remove duplicados
-        const unicos = Array.from(
-            new Map(
-                todos.map(item => [
-                `${item.id}-${item.title ? "movie" : "tv"}`,
-                item
-                ])
-            ).values()
-        );
-
-        const filtrados = unicos.filter(item =>
-            item.poster_path &&
-            item.vote_average >= 5 &&
-            item.vote_count >= 200
-        );
-
-        setResultados(filtrados);
-        setBusca("acao");
-
-         } catch (e) {
-          console.log(e);
-      } finally {
-          setLoading(false);
-      }
-       
-    }
-
-    //Funçao buscar FANTASIA
-    async function fantasia() {
-        setLoading(true);
-
-      try {
-
-        const paginas = [1,2,3,4,5,6,7,8,9];
-
-        const requestsFilmes = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16,14&without_original_language=ja&language=pt-BR&page=${page}`)
-        );
-
-        const requestsSeries = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16,14&without_original_language=ja&language=pt-BR&page=${page}`)
-        );
-
-        const respostas = await Promise.all([...requestsFilmes, ...requestsSeries]);
-
-        const json = await Promise.all(respostas.map(r => r.json()));
-
-        // junta todos resultados
-        const todos = json.flatMap(d => d.results);
-
-        // remove duplicados
-        const unicos = Array.from(
-            new Map(
-                todos.map(item => [
-                `${item.id}-${item.title ? "movie" : "tv"}`,
-                item
-                ])
-            ).values()
-        );
-
-        const filtrados = unicos.filter(item =>
-            item.poster_path &&
-            item.vote_average >= 5 &&
-            item.vote_count >= 200
-        );
-
-        setResultados(filtrados);
-        setBusca("fantasia");
-
-         } catch (e) {
-          console.log(e);
-      } finally {
-          setLoading(false);
-      }
-        
-    }
-
-    //Funçao buscar ROMANCE
-    async function romance() {
-        setLoading(true);
-
-      try {
-
-        const paginas = [1,2,3,4,5,6,7,8,9];
-
-        const requestsFilmes = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16,10749&without_original_language=ja&language=pt-BR&page=${page}`)
-        );
-
-        const requestsSeries = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16,10749&without_original_language=ja&language=pt-BR&page=${page}`)
-        );
-
-        const respostas = await Promise.all([...requestsFilmes, ...requestsSeries]);
-
-        const json = await Promise.all(respostas.map(r => r.json()));
-
-        // junta todos resultados
-        const todos = json.flatMap(d => d.results);
-
-        // remove duplicados
-        const unicos = Array.from(
-            new Map(
-                todos.map(item => [
-                `${item.id}-${item.title ? "movie" : "tv"}`,
-                item
-                ])
-            ).values()
-        );
-
-        const filtrados = unicos.filter(item =>
-            item.poster_path &&
-            item.vote_average >= 5 &&
-            item.vote_count >= 200
-        );
-
-        setResultados(filtrados);
-        setBusca("romance");
-
-         } catch (e) {
-          console.log(e);
-      } finally {
-          setLoading(false);
-      }
-      
-    }
-
-    //Funçao buscar MISTERIO
-    async function misterio() {
-        setLoading(true);
-
-      try {
-
-        const paginas = [1,2,3,4,5,6,7,8,9];
-
-        const requestsFilmes = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16,9648&without_original_language=ja&language=pt-BR&page=${page}`)
-        );
-
-        const requestsSeries = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16,9648&without_original_language=ja&language=pt-BR&page=${page}`)
-        );
-
-        const respostas = await Promise.all([...requestsFilmes, ...requestsSeries]);
-
-        const json = await Promise.all(respostas.map(r => r.json()));
-
-        // junta todos resultados
-        const todos = json.flatMap(d => d.results);
-
-        // remove duplicados
-        const unicos = Array.from(
-            new Map(
-                todos.map(item => [
-                `${item.id}-${item.title ? "movie" : "tv"}`,
-                item
-                ])
-            ).values()
-        );
-
-        const filtrados = unicos.filter(item =>
-            item.poster_path &&
-            item.vote_average >= 5 &&
-            item.vote_count >= 200
-        );
-
-        setResultados(filtrados);
-        setBusca("misterio");
-
-         } catch (e) {
-          console.log(e);
-      } finally {
-          setLoading(false);
-      }
-        
-    }
-
-    //Funçao buscar HORROR
-    async function horror() {
-        
-      setLoading(true);
-
-      try {
-        const paginas = [1,2,3,4,5,6,7,8,9];
-
-        const requestsFilmes = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16,27&without_original_language=ja&language=pt-BR&page=${page}`)
-        );
-
-        const requestsSeries = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16,27&without_original_language=ja&language=pt-BR&page=${page}`)
-        );
-
-        const respostas = await Promise.all([...requestsFilmes, ...requestsSeries]);
-
-        const json = await Promise.all(respostas.map(r => r.json()));
-
-        // junta todos resultados
-        const todos = json.flatMap(d => d.results);
-
-        // remove duplicados
-        const unicos = Array.from(
-            new Map(
-                todos.map(item => [
-                `${item.id}-${item.title ? "movie" : "tv"}`,
-                item
-                ])
-            ).values()
-        );
-
-        const filtrados = unicos.filter(item =>
-            item.poster_path &&
-            item.vote_average >= 5 &&
-            item.vote_count >= 200
-        );
-
-        setResultados(filtrados);
-        setBusca("horror");
-       
-         } catch (e) {
-          console.log(e);
-      } finally {
-          setLoading(false);
-      }
-    }
-
-
-    //Funçao buscar classificaçao L - Livre
-    async function buscarLivre() {
-   setLoading(true);
-
-      try {
-
-        const paginas = [1,2,3,4,5,6,7,8,9];
-
-        const requestsFilmes = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16,10751&certification_country=US&certification=G&without_original_language=ja&language=pt-BR&sort_by=popularity.desc&page=${page}`)
-        );
-
-        const requestsSeries = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16,10751&with_content_ratings=TV-G&without_original_language=ja&language=pt-BR&sort_by=popularity.desc&page=${page}`)
-        );
-
-        const respostas = await Promise.all([...requestsFilmes, ...requestsSeries]);
-
-        const json = await Promise.all(respostas.map(r => r.json()));
-
-        // junta todos resultados
-        const todos = json.flatMap(d => d.results);
-
-        // remove duplicados
-        const unicos = Array.from(
-            new Map(
-                todos.map(item => [
-                `${item.id}-${item.title ? "movie" : "tv"}`,
-                item
-                ])
-            ).values()
-        );
-
-        const filtrados = unicos.filter(item =>
-            item.poster_path &&
-            item.vote_average >= 5 &&
-            item.vote_count >= 200
-        );
-setResultados(filtrados);
-        setBusca("livre");
-         } catch (e) {
-          console.log(e);
-      } finally {
-          setLoading(false);
-      }
-    } 
-
-    //Funçao buscar classificaçao 10
-    async function buscar10() {
-        setLoading(true);
-
-      try {
-
-        const paginas = [1,2,3,4,5,6,7,8,9];
-
-        const requestsFilmes = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16&certification_country=BR&certification.gte=10&without_original_language=ja&language=pt-BR&with_keywords=210024|1721|9715|456&page=${page}`)
-        );
-
-        const requestsSeries = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16with_content_ratings=10|TV-Y7|TV-G|PG&without_original_language=ja&language=pt-BR&with_keywords=210024|1721|9715|456&page=${page}`)
-        );
-
-        const respostas = await Promise.all([...requestsFilmes, ...requestsSeries]);
-
-        const json = await Promise.all(respostas.map(r => r.json()));
-
-        // junta todos resultados
-        const todos = json.flatMap(d => d.results);
-
-        // remove duplicados
-        const unicos = Array.from(
-            new Map(
-                todos.map(item => [
-                `${item.id}-${item.title ? "movie" : "tv"}`,
-                item
-                ])
-            ).values()
-        );
-
-        const filtrados = unicos.filter(item =>
-            item.poster_path &&
-            item.vote_average >= 5 &&
-            item.vote_count >= 200
-        );
-setResultados(filtrados);
-        setBusca("10");
-         } catch (e) {
-          console.log(e);
-      } finally {
-          setLoading(false);
-      }
-    } 
-
-    //Função buscar classificaçao 12
-    async function buscar12() {
-        setLoading(true);
-
-      try {
-
-        const paginas = [1,2,3,4,5,6,7,8,9];
-
-        const requestsFilmes = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16&certification_country=US&certification.gte=PG-13&without_original_language=ja&language=pt-BR&sort_by=release_date.desc&page=${page}`)
-        );
-
-        const requestsSeries = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16with_content_ratings=12|12A|TV-PG|PG&without_original_language=ja&language=pt-BR&sort_by=release_date.desc&page=${page}`)
-        );
-
-        const respostas = await Promise.all([...requestsFilmes, ...requestsSeries]);
-
-        const json = await Promise.all(respostas.map(r => r.json()));
-
-        // junta todos resultados
-        const todos = json.flatMap(d => d.results);
-
-        // remove duplicados
-        const unicos = Array.from(
-            new Map(
-                todos.map(item => [
-                `${item.id}-${item.title ? "movie" : "tv"}`,
-                item
-                ])
-            ).values()
-        );
-
-        const filtrados = unicos.filter(item =>
-            item.poster_path &&
-            item.vote_average >= 5 &&
-            item.vote_count >= 200
-        );
-setResultados(filtrados);
-        setBusca("12");
-         } catch (e) {
-          console.log(e);
-      } finally {
-          setLoading(false);
-      }
-    } 
-
-    //Função buscar classificação 14
-    async function buscar14() {
-setLoading(true);
-
-      try {
-        const paginas = [1,2,3,4,5,6,7,8,9];
-
-        const requestsFilmes = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16&certification_country=BR&certification.gte=14&without_original_language=ja&language=pt-BR&sort_by=primary_release_date.desc&page=${page}`)
-        );
-
-        const requestsSeries = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16with_content_ratings=14|15|TV-14&without_original_language=ja&language=pt-BR&sort_by=primary_release_date.desc&page=${page}`)
-        );
-
-        const respostas = await Promise.all([...requestsFilmes, ...requestsSeries]);
-
-        const json = await Promise.all(respostas.map(r => r.json()));
-
-        // junta todos resultados
-        const todos = json.flatMap(d => d.results);
-
-        // remove duplicados
-        const unicos = Array.from(
-            new Map(
-                todos.map(item => [
-                `${item.id}-${item.title ? "movie" : "tv"}`,
-                item
-                ])
-            ).values()
-        );
-
-        const filtrados = unicos.filter(item =>
-            item.poster_path &&
-            item.vote_average >= 5 &&
-            item.vote_count >= 200
-        );
-setResultados(filtrados);
-        setBusca("14");
-         } catch (e) {
-          console.log(e);
-      } finally {
-          setLoading(false);
-      }
-    } 
-
-    //Função buscar classificaçao 16
-    async function buscar16() {
-        setLoading(true);
-
-      try {
-
-        const paginas = [1,2,3,4,5,6,7,8,9];
-
-        const requestsFilmes = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16&certification_country=GB&certification.gte=15&without_original_language=ja&language=pt-BR&page=${page}`)
-        );
-
-        const requestsSeries = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16with_content_ratings=16|18|TV-MA|R|NC-17&without_original_language=ja&language=pt-BR&page=${page}`)
-        );
-
-        const respostas = await Promise.all([...requestsFilmes, ...requestsSeries]);
-
-        const json = await Promise.all(respostas.map(r => r.json()));
-
-        // junta todos resultados
-        const todos = json.flatMap(d => d.results);
-
-        // remove duplicados
-        const unicos = Array.from(
-            new Map(
-                todos.map(item => [
-                `${item.id}-${item.title ? "movie" : "tv"}`,
-                item
-                ])
-            ).values()
-        );
-
-        const filtrados = unicos.filter(item =>
-            item.poster_path &&
-            item.vote_average >= 5 &&
-            item.vote_count >= 200
-        );
-setResultados(filtrados);
-        setBusca("16");
-     } catch (e) {
-          console.log(e);
-      } finally {
-          setLoading(false);
-      }
-    } 
-
-    //Função buscar classificaçao 18
-    async function buscar18() {
-        setLoading(true);
-
-      try {
-
-        const paginas = [1,2,3,4,5,6,7,8,9];
-
-        const requestsFilmes = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=16&certification_country=US&certification.gte=NC-17&without_original_language=ja&language=pt-BR&page=${page}`)
-        );
-
-        const requestsSeries = paginas.map(page =>
-            fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16with_content_ratings=18|TV-MA&without_original_language=ja&language=pt-BR&page=${page}`)
-        );
-
-        const respostas = await Promise.all([...requestsFilmes, ...requestsSeries]);
-
-        const json = await Promise.all(respostas.map(r => r.json()));
-
-        // junta todos resultados
-        const todos = json.flatMap(d => d.results);
-
-        // remove duplicados
-        const unicos = Array.from(
-            new Map(
-                todos.map(item => [
-                `${item.id}-${item.title ? "movie" : "tv"}`,
-                item
-                ])
-            ).values()
-        );
-
-        const filtrados = unicos.filter(item =>
-            item.poster_path &&
-            item.vote_average >= 5 &&
-            item.vote_count >= 200
-        );
-setResultados(filtrados);
-        setBusca("18");
-    } catch (e) {
-          console.log(e);
-      } finally {
-          setLoading(false);
-      }
-    } 
 
 
     //Funçao de buscar no CAMPO DE BUSCA
+    {/*
     async function buscarFilmes() {
       if (texto.trim() === "") return;
 
@@ -783,27 +165,115 @@ setResultados(filtrados);
           setLoading(false);
       }
   }
+*/}
+
+const buscarFilmes = useCallback(async () => {
+  if (texto.trim() === "") return;
+  setLoading(true);
+  try {
+    const resposta = await fetch(
+      `${BASE_URL}/search/multi?query=${texto}&api_key=${API_KEY}&language=pt-BR`
+    );
+    const dados = await resposta.json();
+    const filtrados = dados.results.filter(item =>
+      item.poster_path && item.media_type !== "person" && item.genre_ids?.includes(16)
+    );
+    setBusca(texto);
+    setResultados(filtrados);
+  } catch (e) {
+    console.log(e);
+  } finally {
+    setLoading(false);
+  }
+}, [texto, setBusca, setResultados, setLoading]);
 
 
 
-    const actions = {
-      'Família': familia,
-      'Comédia': comedia,
-      'Aventura': aventura,
-      'Drama': drama,
-      'Ação': acao,
-      'Fantasia': fantasia,
-      'Romance': romance,
-      'Mistério': misterio,
-      'Horror': horror,
-      'L - Livre': buscarLivre,
-      '10': buscar10,
-      '12': buscar12,
-      '14': buscar14,
-      '16': buscar16,
-      '18': buscar18
-      
-    };
+   {/*const actions = {*/}
+   const actions = useMemo(() => ({
+  // Gêneros
+  'Família': () => buscarConteudo({
+    nomeBusca: "familia",
+    filmesConfig: "&with_genres=16,10751",
+    seriesConfig: "&with_genres=16,10751"
+  }),
+  'Comédia': () => buscarConteudo({
+    nomeBusca: "comedia",
+    filmesConfig: "&with_genres=16,35",
+    seriesConfig: "&with_genres=16,35"
+  }),
+  'Aventura': () => buscarConteudo({
+    nomeBusca: "aventura",
+    filmesConfig: "&with_genres=16,12",
+    seriesConfig: "&with_genres=16,12"
+  }),
+  'Drama': () => buscarConteudo({
+    nomeBusca: "drama",
+    filmesConfig: "&with_genres=16,18",
+    seriesConfig: "&with_genres=16,18"
+  }),
+  'Ação': () => buscarConteudo({
+    nomeBusca: "acao",
+    filmesConfig: "&with_genres=16,28",
+    seriesConfig: "&with_genres=16,28"
+  }),
+  'Fantasia': () => buscarConteudo({
+    nomeBusca: "fantasia",
+    filmesConfig: "&with_genres=16,14",
+    seriesConfig: "&with_genres=16,14"
+  }),
+  'Romance': () => buscarConteudo({
+    nomeBusca: "romance",
+    filmesConfig: "&with_genres=16,10749",
+    seriesConfig: "&with_genres=16,10749"
+  }),
+  'Mistério': () => buscarConteudo({
+    nomeBusca: "misterio",
+    filmesConfig: "&with_genres=16,9648",
+    seriesConfig: "&with_genres=16,9648"
+  }),
+  'Horror': () => buscarConteudo({
+    nomeBusca: "horror",
+    filmesConfig: "&with_genres=16,27",
+    seriesConfig: "&with_genres=16,27"
+  }),
+
+  // Classificações específicas
+  'L - Livre': () => buscarConteudo({
+    nomeBusca: "livre",
+    filmesConfig: "&with_genres=16,10751&certification_country=US&certification=G",
+    seriesConfig: "&with_genres=16,10751&with_content_ratings=TV-G"
+  }),
+  '10': () => buscarConteudo({
+    nomeBusca: "10",
+    filmesConfig: "&with_genres=16&certification_country=BR&certification.gte=10",
+    seriesConfig: "&with_genres=16&with_content_ratings=10|TV-Y7|TV-G|PG"
+  }),
+  '12': () => buscarConteudo({
+    nomeBusca: "12",
+    filmesConfig: "&with_genres=16&certification_country=US&certification.gte=PG-13",
+    seriesConfig: "&with_genres=16&with_content_ratings=12|12A|TV-PG|PG"
+  }),
+  '14': () => buscarConteudo({
+    nomeBusca: "14",
+    filmesConfig: "&with_genres=16&certification_country=BR&certification.gte=14",
+    seriesConfig: "&with_genres=16&with_content_ratings=14|15|TV-14"
+  }),
+  '16': () => buscarConteudo({
+    nomeBusca: "16",
+    filmesConfig: "&with_genres=16&certification_country=GB&certification.gte=15",
+    seriesConfig: "&with_genres=16&with_content_ratings=16|18|TV-MA|R|NC-17"
+  }),
+  '18': () => buscarConteudo({
+    nomeBusca: "18",
+    filmesConfig: "&with_genres=16&certification_country=US&certification.gte=NC-17",
+    seriesConfig: "&with_genres=16&with_content_ratings=18|TV-MA"
+  }),
+  }), [buscarConteudo]);
+
+{/* }; */}
+
+
 
     //Efeito dropdown descer suave
     useEffect(() => {
@@ -919,9 +389,9 @@ setResultados(filtrados);
                         'Romance',
                         'Mistério',
                         'Horror',
-                    ].map((item, index) => (
+                    ].map((item) => (
                         <Pressable 
-                          key={`${item.id ?? index}-${item.media_type || (item.title ? "movie" : "tv")}`}
+                          key={item}
                           style={({ hovered, pressed }) => [
                             styles.item,
                             {
@@ -948,7 +418,7 @@ setResultados(filtrados);
                     <View style={styles.grid}>
                     {['L - Livre', '10', '12', '14', '16', '18'].map((item, index) => (
                         <Pressable 
-                          key={`${item.id ?? index}-${item.media_type || (item.title ? "movie" : "tv")}`} 
+                          key={item}
                           style={({ hovered, pressed }) => [
                             styles.item,
                             {

@@ -1,40 +1,33 @@
 import { StyleSheet, Dimensions } from "react-native";
 
 const { width, height } = Dimensions.get('window');
+const cardWidth = (width - 16 * 3) / 2;
+const cardMargin = (width - cardWidth * 2) / 4;
 
 const styles = StyleSheet.create({
 
-    caixaSuperior: {
-        flex: 1,
+    flat: {
+       width: '100%',
     },
+
 
     tituloSecao: {
         color: '#b0d1f7',
         fontFamily: 'Mouse',
         fontSize: 28,
         marginBottom: 8,
-        marginLeft: 25,
+        marginLeft: 16,
+        alignSelf: 'flex-start'
 
     },
 
-    scrollviewPrincipal: {
-       flex: 1,
-       
-       
-    },
 
-    containerCards: {
-        flexDirection: "row",
-        flexWrap: "wrap",
-        justifyContent: 'space-around'
-        
-    },
+
 
     cardLinkRes: {
         position: 'relative',
-        width: width * 0.38,
+        width: cardWidth,
         aspectRatio: 2 / 3,
-        marginHorizontal: 8,
         borderRadius: 8,
         shadowColor: '#706c6c',
         shadowOffset: { width: 0, height: 2 },
@@ -42,7 +35,8 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3, 
         overflow: 'hidden',
-        marginBottom: 20
+        marginBottom: 20,
+        marginHorizontal: cardMargin,
     },
   
     imgCardRes: {

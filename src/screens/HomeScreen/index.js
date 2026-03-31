@@ -1,51 +1,65 @@
-import { ScrollView, ImageBackground, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { StyleSheet, View, FlatList, ImageBackground } from 'react-native';
+
 import Header from "../../components/Header";
 import AreaListas from '../../components/AreaListas';
 import Footer from '../../components/Footer';
 import ResultadosBusca from '../../components/ResultadosBusca';
 
 export default function HomeScreen() {
-
   const [busca, setBusca] = useState("");
   const [resultados, setResultados] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const voltarInicio = useCallback(() => {
+    setBusca("");
+    setResultados([]);
+  }, []);
+
+  const renderContent = () => {
+    if (busca) {
+      return <ResultadosBusca resultados={resultados} loading={loading} />;
+    }
+    return <AreaListas />;
+  };
+
   return (
     <ImageBackground 
       source={require('../../../assets/back.png')}
-      style={{ flex: 1 }}
-      resizeMode='cover'
+      style={styles.container}
+      resizeMode="cover"
     >
-      <LinearGradient
-        colors={['rgba(0,0,0,0.5)', 'rgba(0,0,0,0.5)']}
-        style={{ flex: 1 }}
-      >
+      <View style={styles.overlay} />
 
-      <View style={{ flex: 1 }}>
-
+      <View style={styles.container}>
         <Header 
           setBusca={setBusca} 
           setResultados={setResultados}
           setLoading={setLoading}
-          voltarInicio={() => {
-            setBusca("");
-            setResultados([]);
-          }}
+          voltarInicio={voltarInicio}
         />
 
-        <ScrollView contentContainerStyle={{ paddingTop: 90 }}>
-          {busca ? (  
-            <ResultadosBusca resultados={resultados} loading={loading} />
-          ) : (
-            <AreaListas />
+        <FlatList
+          data={[{}]} // dummy data só para renderizar conteúdo único
+          renderItem={() => (
+            <>
+              {renderContent()}
+              <Footer />
+            </>
           )}
-          <Footer />
-        </ScrollView>
-
+          keyExtractor={() => "content"}
+          contentContainerStyle={styles.scrollContent}
+        />
       </View>
-      </LinearGradient>
     </ImageBackground>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  scrollContent: { paddingTop: 90 },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.5)', // escurece a imagem
+  },
+});
