@@ -16,6 +16,7 @@ import ListaFantasia from "../ListaFantasia";
 import ListaFiccao from "../ListaFiccao";
 import ListaAdultos from "../ListaAdultos";
 import ListaUltimos from "../ListaUltimos";
+import Footer from '../../components/Footer';
 
 export default function AreaListas(){
 
@@ -296,6 +297,7 @@ export default function AreaListas(){
                 </LinearGradient>
                 <ListaUltimos/>
             </Animated.View>
+            
         </ScrollView>
     )
 }

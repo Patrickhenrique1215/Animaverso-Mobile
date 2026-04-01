@@ -40,17 +40,15 @@ export default function HomeScreen() {
         />
 
         <FlatList
-          data={[{}]} // dummy data só para renderizar conteúdo único
-          renderItem={() => (
-            <>
-              {renderContent()}
-              <Footer />
-            </>
-          )}
+          data={[{}]} 
+          renderItem={() => renderContent()}
           keyExtractor={() => "content"}
           contentContainerStyle={styles.scrollContent}
         />
+
+        <Footer />
       </View>
+    
     </ImageBackground>
   );
 }

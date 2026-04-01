@@ -4,7 +4,6 @@ const styles = StyleSheet.create({
     footer: {
         width: '100%',
         backgroundColor: 'black',
-        marginTop: 'auto',
         padding: 5,
     },
 
