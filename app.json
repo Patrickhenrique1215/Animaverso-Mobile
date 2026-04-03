@@ -4,11 +4,11 @@
     "slug": "animaverso",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icone.png",
+    "icon": "./assets/iconex.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icone.png",
+      "image": "./assets/splash-iconex.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -21,14 +21,14 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icone.png",
+        "foregroundImage": "./assets/adaptive-iconex.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.patrickhenrique.animaverso"
     },
     "web": {
-      "favicon": "./assets/favicone.png"
+      "favicon": "./assets/faviconex.png"
     },
     "plugins": [
       "expo-font"
