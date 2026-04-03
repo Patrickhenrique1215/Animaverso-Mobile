@@ -7,8 +7,7 @@ App mobile de streaming de animações desenvolvida como Single Page Application
 
 No seu celular ANDROID, clique no link abaixo, vá em **Build Artifact**, pressione **Install** para instalar e testar o app(Somente ANDROID).
 
-https://expo.dev/accounts/patrickhenrique/projects/animaverso/builds/56379526-f9d4-4187-b77f-fcfde423250d
-
+https://expo.dev/accounts/patrickhenrique/projects/animaverso/builds/8aefd551-4c5a-4d78-9abb-fd58929f2b02
 
 ## 🎯 **Objetivo do Projeto**
 
